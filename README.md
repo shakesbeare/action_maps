@@ -66,6 +66,12 @@ impl Into<Action> for Actions {
         }
     }
 }
+
+fn bind_keys(
+    mut control_scheme: ResMut<ControlScheme>
+) {
+    control_scheme.insert(Action::Up, KeyCode::W);
+}
 ```
 
 ## Examples
