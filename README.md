@@ -6,10 +6,9 @@ A dynamic action mapping system for Bevy.
 
 Action maps provides an interface similar to Unity's InputSystem and Godot's
 Input Map. With Action Maps, you can assign functionality to any available Bevy
-input item without having to work directly with they inputs themselves. 
+input item without having to work directly with the inputs themselves. 
 
-At the moment, this only applies to button type inputs. Axis type inputs are
-planned to be implemented in the future.
+At the moment, this only applies to button type inputs. 
 
 ## Defining Actions
 
@@ -107,3 +106,9 @@ let qwerty_w_scancode = action_maps::get_scan_code("W");
 
 See `examples/keyboard_and_mouse.rs` for a complete mockup of how action maps
 work in practice. 
+
+## Planned Changes
+
+- Support for Axis type inputs
+- Support for multiple sets of bindings to allow for easier local multiplayer
+
