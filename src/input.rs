@@ -1,68 +1,107 @@
-use bevy_input::gamepad::GamepadAxisType;
-use bevy_input::gamepad::GamepadButtonType;
-use bevy_input::keyboard::KeyCode;
-use bevy_input::keyboard::ScanCode;
-use bevy_input::mouse::MouseButton;
-use bevy_input::touch::TouchPhase;
+use crate::action::Action;
+use bevy_ecs::system::Resource;
+use bevy_input::Input as BevyInput;
 
-#[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
-pub enum Key {
-    KeyCode(KeyCode),
-    ScanCode(ScanCode),
-}
+#[derive(Debug, Clone, Resource, Default)]
+pub struct Input(BevyInput<Action>);
 
-#[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
-pub enum ActionInput {
-    Keyboard(Key),
-    Mouse(MouseButton),
-    Touch(TouchPhase),
-    GamepadButton(GamepadButtonType),
-    GamepadAxis(GamepadAxisType),
-}
-
-impl From<KeyCode> for ActionInput {
-    fn from(key_code: KeyCode) -> Self {
-        ActionInput::Keyboard(Key::KeyCode(key_code))
+impl Input {
+    pub fn press<A>(&mut self, input: A)
+    where
+        A: Into<Action>,
+    {
+        self.0.press(input.into());
     }
-}
 
-impl From<ScanCode> for ActionInput {
-    fn from(scan_code: ScanCode) -> Self {
-        ActionInput::Keyboard(Key::ScanCode(scan_code))
+    pub fn pressed<A>(&self, input: A) -> bool
+    where
+        A: Into<Action>,
+    {
+        self.0.pressed(input.into())
     }
-}
 
-impl From<GamepadButtonType> for ActionInput {
-    fn from(button_type: GamepadButtonType) -> Self {
-        ActionInput::GamepadButton(button_type)
+    pub fn any_pressed<A>(&self, inputs: impl IntoIterator<Item = A>) -> bool
+    where
+        A: Into<Action>,
+    {
+        let inputs = inputs.into_iter().map(|a| a.into()).collect::<Vec<_>>();
+        self.0.any_pressed(inputs)
     }
-}
 
-impl From<GamepadAxisType> for ActionInput {
-    fn from(axis_type: GamepadAxisType) -> Self {
-        ActionInput::GamepadAxis(axis_type)
+    pub fn release<A>(&mut self, input: A)
+    where
+        A: Into<Action>,
+    {
+        self.0.release(input.into());
     }
-}
 
-impl From<MouseButton> for ActionInput {
-    fn from(mouse_button: MouseButton) -> Self {
-        ActionInput::Mouse(mouse_button)
+    pub fn release_all(&mut self) {
+        self.0.release_all();
     }
-}
 
-impl From<TouchPhase> for ActionInput {
-    fn from(touch_phase: TouchPhase) -> Self {
-        ActionInput::Touch(touch_phase)
+    pub fn just_pressed<A>(&self, input: A) -> bool
+    where
+        A: Into<Action>,
+    {
+        self.0.just_pressed(input.into())
     }
+
+    pub fn any_just_pressed<A>(
+        &self,
+        inputs: impl IntoIterator<Item = A>,
+    ) -> bool
+    where
+        A: Into<Action>,
+    {
+        let inputs = inputs.into_iter().map(|a| a.into()).collect::<Vec<_>>();
+        self.0.any_just_pressed(inputs)
+    }
+
+    pub fn clear_just_pressed<A>(&mut self, input: A)
+    where
+        A: Into<Action>,
+    {
+        self.0.clear_just_pressed(input.into());
+    }
+
+    pub fn reset<A>(&mut self, input: A)
+    where
+        A: Into<Action>,
+    {
+        self.0.reset(input.into());
+    }
+
+    pub fn reset_all(&mut self) {
+        self.0.reset_all();
+    }
+
+    pub fn clear(&mut self) {
+        self.0.clear();
+    }
+
+    pub fn get_pressed(&self) -> impl ExactSizeIterator<Item = &Action>
+    {
+        self.0.get_pressed()
+    }
+
+    pub fn get_just_pressed(&self) -> impl ExactSizeIterator<Item = &Action>
+    {
+        self.0.get_just_pressed()
+    }
+
+    pub fn get_just_released(&self) -> impl ExactSizeIterator<Item = &Action>
+    {
+        self.0.get_just_released()
+    }
+
 }
 
-#[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
-pub enum InputType {
-    Keyboard,
-    Mouse,
-    Touch,
-    GamepadButton,
-    GamepadAxis,
-}
+
+
+
+
+
+
+
 
 
