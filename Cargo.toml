@@ -5,7 +5,7 @@ edition = "2021"
 description = "A dynamic action mapping system for Bevy."
 license = "MIT"
 repository = "https://github.com/shakesbeare/action_maps"
-keywords = [ "bevy", "action", "mapping", "input", "controller", "gamepad", "keyboard", "mouse" ]
+keywords = [ "bevy", "action", "mapping", "input" ]
 categories = [ "game-dev", "game-engine", "game-engine-plugin" ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
