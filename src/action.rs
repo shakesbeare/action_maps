@@ -28,7 +28,7 @@ use crate::input_type::UniversalInput;
 ///        .add_plugins(ActionMapPlugin)
 ///        .add_systems(
 ///            PreUpdate,
-///            handle_input.in_set(UniversalInputSet::HandleActions),
+///            handle_input.in_set(ActionMapSet::HandleActions),
 ///        )
 ///     ;
 /// }
@@ -36,7 +36,7 @@ use crate::input_type::UniversalInput;
 /// fn handle_input() {}
 /// ```
 #[derive(Hash, Debug, PartialEq, Eq, Clone, SystemSet)]
-pub enum UniversalInputSet {
+pub enum ActionMapSet {
     ReadEvents,
     HandleActions,
 }
@@ -45,7 +45,7 @@ unsafe impl Send for Action {}
 unsafe impl Sync for Action {}
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Action {
-    name: &'static str,
+    pub name: &'static str,
 }
 
 impl From<&'static str> for Action {
@@ -109,14 +109,14 @@ impl Plugin for ActionMapPlugin {
     fn build(&self, app: &mut App) {
         app.configure_sets(
             PreUpdate,
-            UniversalInputSet::HandleActions
-                .after(UniversalInputSet::ReadEvents),
+            ActionMapSet::HandleActions
+                .after(ActionMapSet::ReadEvents),
         )
         .init_resource::<ControlScheme>()
         .init_resource::<ActionInput>()
         .add_systems(
             PreUpdate,
-            (action_input_system).in_set(UniversalInputSet::ReadEvents),
+            (action_input_system).in_set(ActionMapSet::ReadEvents),
         );
     }
 }

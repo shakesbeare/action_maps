@@ -4,9 +4,7 @@ use std::collections::HashMap;
 use crate::action::Action;
 use crate::input_type::UniversalInput;
 
-/// A wrapper around a map of `Action`s to `UniversalInput`s.
-/// `A: Into<Action>`,
-/// `I: Into<UniversalInput>`,
+/// A wrapper around a map of `Action`s to `UniversalInput`s.  
 /// Example:
 /// ```
 /// use bevy::prelude::*;

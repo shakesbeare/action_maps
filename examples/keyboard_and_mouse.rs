@@ -41,7 +41,7 @@ fn main() {
         .add_systems(PreStartup, setup)
         .add_systems(
             PreUpdate,
-            handle_input.in_set(UniversalInputSet::HandleActions),
+            handle_input.in_set(ActionMapSet::HandleActions),
         )
         .run();
 }
