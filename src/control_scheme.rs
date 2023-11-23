@@ -4,6 +4,21 @@ use std::collections::HashMap;
 use crate::action::Action;
 use crate::input_type::UniversalInput;
 
+/// A wrapper around a map of `Action`s to `UniversalInput`s.
+/// `A: Into<Action>`,
+/// `I: Into<UniversalInput>`,
+/// Example:
+/// ```
+/// use bevy::prelude::*;
+/// use action_maps::prelude::*;
+/// use action_maps::get_scan_code;
+///
+/// fn bind_keys(mut control_scheme: ResMut<ControlScheme>) {
+///    control_scheme.insert("Up", ScanCode(get_scan_code("W")));
+///    control_scheme.insert("Left", KeyCode::A);
+///    control_scheme.insert("Shoot", MouseButton::Left);
+/// }
+/// ```
 #[derive(Resource, Default)]
 pub struct ControlScheme(HashMap<Action, UniversalInput>);
 

@@ -4,7 +4,8 @@ use bevy_input::keyboard::KeyCode;
 use bevy_input::keyboard::ScanCode;
 use bevy_input::mouse::MouseButton;
 
-
+/// Represents a type of input that can be mapped to an action.
+/// Allows control schemes to be more generic
 #[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
 pub enum UniversalInput {
     Keyboard(Key),

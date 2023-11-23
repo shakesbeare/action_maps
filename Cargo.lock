@@ -79,7 +79,6 @@ dependencies = [
  "bevy_app",
  "bevy_ecs",
  "bevy_input",
- "bevy_reflect",
 ]
 
 [[package]]

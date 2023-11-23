@@ -11,12 +11,30 @@ use bevy_input::{
     Input as BevyInput,
 };
 
-use crate::input::Input;
-
 use crate::control_scheme::ControlScheme;
+use crate::input::ActionInput;
 use crate::input_type::Key;
 use crate::input_type::UniversalInput;
 
+/// All systems handling controls should be a member of the `HandleActions` set
+/// to ensure that they run after the UniversalInputPlugin can update the Input
+/// resource.
+/// ```rust
+/// use bevy::prelude::*;
+/// use action_maps::prelude::*;
+///
+/// fn main() {
+///    App::new()
+///        .add_plugins(ActionMapPlugin)
+///        .add_systems(
+///            PreUpdate,
+///            handle_input.in_set(UniversalInputSet::HandleActions),
+///        )
+///     ;
+/// }
+///
+/// fn handle_input() {}
+/// ```
 #[derive(Hash, Debug, PartialEq, Eq, Clone, SystemSet)]
 pub enum UniversalInputSet {
     ReadEvents,
@@ -37,7 +55,7 @@ impl From<&'static str> for Action {
 }
 
 pub fn action_input_system(
-    mut actions: ResMut<Input>,
+    mut actions: ResMut<ActionInput>,
     keycodes: Res<BevyInput<KeyCode>>,
     scancodes: Res<BevyInput<ScanCode>>,
     mouse_buttons: Res<BevyInput<MouseButton>>,
@@ -95,11 +113,10 @@ impl Plugin for ActionMapPlugin {
                 .after(UniversalInputSet::ReadEvents),
         )
         .init_resource::<ControlScheme>()
-        .init_resource::<Input>()
+        .init_resource::<ActionInput>()
         .add_systems(
             PreUpdate,
-            (action_input_system)
-                .in_set(UniversalInputSet::ReadEvents),
+            (action_input_system).in_set(UniversalInputSet::ReadEvents),
         );
     }
 }

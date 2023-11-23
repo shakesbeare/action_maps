@@ -2,10 +2,23 @@ use crate::action::Action;
 use bevy_ecs::system::Resource;
 use bevy_input::Input as BevyInput;
 
+/// A wrapper around `bevy_input::Input` for use with the more generic `Action`s.
+/// The interface is exactly the same as `bevy_input::Input`. See `ControlScheme` for details on
+/// how to bind inputs to actions.
+/// ```rust
+/// use bevy::prelude::*;
+/// use action_maps::prelude::*;
+///
+/// fn handle_input(mut input: ResMut<ActionInput>) {
+///    if input.pressed("Up") {
+///        println!("Up is pressed!");
+///    }
+/// }
+/// ```
 #[derive(Debug, Clone, Resource, Default)]
-pub struct Input(BevyInput<Action>);
+pub struct ActionInput(BevyInput<Action>);
 
-impl Input {
+impl ActionInput {
     pub fn press<A>(&mut self, input: A)
     where
         A: Into<Action>,
@@ -79,29 +92,15 @@ impl Input {
         self.0.clear();
     }
 
-    pub fn get_pressed(&self) -> impl ExactSizeIterator<Item = &Action>
-    {
+    pub fn get_pressed(&self) -> impl ExactSizeIterator<Item = &Action> {
         self.0.get_pressed()
     }
 
-    pub fn get_just_pressed(&self) -> impl ExactSizeIterator<Item = &Action>
-    {
+    pub fn get_just_pressed(&self) -> impl ExactSizeIterator<Item = &Action> {
         self.0.get_just_pressed()
     }
 
-    pub fn get_just_released(&self) -> impl ExactSizeIterator<Item = &Action>
-    {
+    pub fn get_just_released(&self) -> impl ExactSizeIterator<Item = &Action> {
         self.0.get_just_released()
     }
-
 }
-
-
-
-
-
-
-
-
-
-

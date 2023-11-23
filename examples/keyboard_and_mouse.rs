@@ -1,7 +1,8 @@
 extern crate bevy;
 
-use action_maps::prelude::*;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
+use action_maps::prelude::*;
+use action_maps::get_scan_code;
 
 #[derive(Component)]
 struct Controllable;
@@ -72,7 +73,7 @@ fn setup(
 }
 
 fn handle_input(
-    actions: Res<action_maps::input::Input>,
+    actions: Res<ActionInput>,
     mut query: Query<&mut Transform, With<Controllable>>,
     mut mats: Query<(&mut Handle<ColorMaterial>, &mut HasColor)>,
     mut materials: ResMut<Assets<ColorMaterial>>,
