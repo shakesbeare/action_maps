@@ -51,14 +51,12 @@ fn setup(
         (Actions::Down, ScanCode(get_scan_code("S"))),
         (Actions::Right, ScanCode(get_scan_code("D"))),
     ]);
-    let arrows = ControlScheme::with_controls(
-        vec![
-            (Actions::Up, ScanCode(get_scan_code("Up"))),
-            (Actions::Left, ScanCode(get_scan_code("Left"))),
-            (Actions::Down, ScanCode(get_scan_code("Down"))),
-            (Actions::Right, ScanCode(get_scan_code("Right"))),
-        ]
-    );
+    let arrows = ControlScheme::with_controls(vec![
+        (Actions::Up, ScanCode(get_scan_code("Up"))),
+        (Actions::Left, ScanCode(get_scan_code("Left"))),
+        (Actions::Down, ScanCode(get_scan_code("Down"))),
+        (Actions::Right, ScanCode(get_scan_code("Right"))),
+    ]);
     control_schemes.insert(0, wasd);
     control_schemes.insert(1, arrows);
     inputs.has_players(2);
@@ -105,5 +103,4 @@ fn handle_input(
             transform.translation.y -= 1.;
         }
     }
-
 }

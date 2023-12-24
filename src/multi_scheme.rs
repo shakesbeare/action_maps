@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use bevy_ecs::system::Resource;
 use crate::control_scheme::ControlScheme;
+use bevy_ecs::system::Resource;
+use std::collections::HashMap;
 
 /// Helper type to be used for local multiplayer
 /// ```rust
@@ -15,7 +15,7 @@ use crate::control_scheme::ControlScheme;
 ///     Down,
 ///     Right,
 /// }
-/// 
+///
 /// impl From<Actions> for Action {
 ///     fn from(value: Actions) -> Self {
 ///         match value {
@@ -39,15 +39,13 @@ use crate::control_scheme::ControlScheme;
 /// ```
 #[derive(Debug, Clone, Resource, Default)]
 pub struct MultiScheme {
-    map: HashMap<usize, ControlScheme>
+    map: HashMap<usize, ControlScheme>,
 }
 
 impl MultiScheme {
     pub fn new() -> Self {
         let map = HashMap::new();
-        Self {
-            map,
-        }
+        Self { map }
     }
 
     pub fn get(&self, id: usize) -> Option<&ControlScheme> {

@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use bevy_ecs::system::Resource;
 use crate::input::ActionInput;
+use bevy_ecs::system::Resource;
+use std::collections::HashMap;
 
 /// Helper function to be enable local multiplayer
 /// ```rust
@@ -26,15 +26,13 @@ use crate::input::ActionInput;
 /// ```
 #[derive(Debug, Clone, Resource, Default)]
 pub struct MultiInput {
-    map: HashMap<usize, ActionInput>
+    map: HashMap<usize, ActionInput>,
 }
 
 impl MultiInput {
     pub fn new() -> Self {
         let map = HashMap::new();
-        Self {
-            map,
-        }
+        Self { map }
     }
 
     pub fn get(&self, id: usize) -> Option<&ActionInput> {
@@ -44,13 +42,13 @@ impl MultiInput {
     pub fn get_mut(&mut self, id: usize) -> Option<&mut ActionInput> {
         self.map.get_mut(&id)
     }
-    
+
     pub fn insert(&mut self, id: usize) {
         self.map.insert(id, ActionInput::default());
     }
 
     pub fn has_players(&mut self, count: usize) {
-        for i in 0..count  {
+        for i in 0..count {
             self.insert(i);
         }
     }
