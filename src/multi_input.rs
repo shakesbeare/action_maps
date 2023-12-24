@@ -61,3 +61,22 @@ impl MultiInput {
         self.map.keys()
     }
 }
+
+#[macro_export]
+macro_rules! make_multi_input {
+    ($multi_input:ident, $multi_scheme:ident, $( ( $( ($A:expr, $I:expr) $(,)? ),* ) ),*    ) => {
+        {
+            use action_maps::make_controls;
+            let mut __count = 0;
+            $(
+            let __controls = make_controls!(
+            $(($A, $I)),*
+            );
+            $multi_scheme.insert(__count, __controls);
+            __count += 1;
+            )*
+
+            $multi_input.has_players(__count);
+        }
+    }
+}

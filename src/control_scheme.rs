@@ -22,16 +22,8 @@ pub struct ControlScheme(HashMap<Action, UniversalInput>);
 
 #[allow(dead_code)]
 impl ControlScheme {
-    pub fn with_controls<A, I>(bindings: Vec<(A, I)>) -> Self
-    where
-        A: Into<Action>,
-        I: Into<UniversalInput>,
-    {
-        let mut scheme = ControlScheme::default();
-        for (action, input) in bindings.into_iter() {
-            scheme.insert(action, input);
-        }
-        scheme
+    pub fn set(&mut self, other: ControlScheme) {
+        self.0 = other.0;
     }
 
     pub fn insert<A, I>(&mut self, action: A, input: I)
@@ -80,5 +72,18 @@ impl ControlScheme {
 
     pub fn iter_mut(&mut self) -> impl Iterator<Item = (&Action, &mut UniversalInput)> {
         self.0.iter_mut()
+    }
+}
+
+#[macro_export]
+macro_rules! make_controls {
+    ( $( ($A: expr, $I: expr) ),*) => {
+        {
+            let mut controls = ControlScheme::default();
+            $(
+                controls.insert($A, $I);
+            )*
+            controls
+        }
     }
 }
