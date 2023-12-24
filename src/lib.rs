@@ -188,6 +188,10 @@ pub fn get_scan_code(key: &str) -> u32 {
             "Del" => 0x53,
             _ => unreachable!("Unknown key: {}", key),
         },
-        _ => panic!("Unsupported OS: {}", std::env::consts::OS),
+        _ => {
+            eprintln!("Unsupported OS: {}", std::env::consts::OS);
+            eprintln!("Controls on this platform will silently fail");
+            0x00
+        }
     }
 }
