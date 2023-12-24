@@ -102,13 +102,48 @@ Linux). Hopefully, it will be made unnecessary with
 let qwerty_w_scancode = action_maps::get_scan_code("W");
 ```
 
-## Examples
+## Multiplayer
 
-See `examples/keyboard_and_mouse.rs` for a complete mockup of how action maps
-work in practice. 
+Multiplayer is made easy with the helper types `MultiInput` and `MultiScheme`. You can
+easily import everything you need from `action_maps::multiplayer` Add in
+the MultiActionMapPlugin instead to get started. 
+
+```rust
+fn bind_keys(
+    mut inputs: ResMut<MultiInput>,
+    mut control_schemes: ResMut<MultiScheme>,
+) {
+    let wasd = ControlScheme::with_controls(vec![
+        (Actions::Up, ScanCode(get_scan_code("W"))),
+        (Actions::Left, ScanCode(get_scan_code("A"))),
+        (Actions::Down, ScanCode(get_scan_code("S"))),
+        (Actions::Right, ScanCode(get_scan_code("D"))),
+    ]);
+    let arrows = ControlScheme::with_controls(
+        vec![
+            (Actions::Up, ScanCode(get_scan_code("Up"))),
+            (Actions::Left, ScanCode(get_scan_code("Left"))),
+            (Actions::Down, ScanCode(get_scan_code("Down"))),
+            (Actions::Right, ScanCode(get_scan_code("Right"))),
+        ]
+    );
+    control_schemes.insert(0, wasd);
+    control_schemes.insert(1, arrows);
+    inputs.has_players(2);
+}
+
+
+fn handle_input(
+    multi_input: Res<MultiInput>,
+    mut query: Query<(&mut Transform, &PlayerId)>,
+) {
+    for (mut transform, PlayerId(id)) in query.iter_mut() {
+        let actions: &ActionInput = multi_input.get(*id).unwrap();
+        // handle controls here the same way you would for singleplayer!
+    }
+}
+```
 
 ## Planned Changes
 
 - Support for Axis type inputs
-- Support for multiple sets of bindings to allow for easier local multiplayer
-

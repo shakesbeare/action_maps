@@ -17,11 +17,23 @@ use crate::input_type::UniversalInput;
 ///    control_scheme.insert("Shoot", MouseButton::Left);
 /// }
 /// ```
-#[derive(Resource, Default)]
+#[derive(Debug, Clone, Resource, Default)]
 pub struct ControlScheme(HashMap<Action, UniversalInput>);
 
 #[allow(dead_code)]
 impl ControlScheme {
+    pub fn with_controls<A, I>(bindings: Vec<(A, I)>) -> Self
+    where
+        A: Into<Action>,
+        I: Into<UniversalInput>,
+    {
+        let mut scheme = ControlScheme::default();
+        for (action, input) in bindings.into_iter() {
+            scheme.insert(action, input);
+        }
+        scheme
+    }
+
     pub fn insert<A, I>(&mut self, action: A, input: I)
     where
         A: Into<Action>,

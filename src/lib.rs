@@ -7,11 +7,21 @@ pub mod action;
 pub mod control_scheme;
 pub mod input;
 pub mod input_type;
+pub mod multi_input;
+pub mod multi_scheme;
 
 pub mod prelude {
     pub use crate::action::*;
     pub use crate::control_scheme::*;
     pub use crate::input::*;
+}
+
+pub mod multiplayer {
+    pub use crate::action::*;
+    pub use crate::control_scheme::*;
+    pub use crate::input::*;
+    pub use crate::multi_input::*;
+    pub use crate::multi_scheme::*;
 }
 
 /// Rudimentary helper function to get the scan code for a key.

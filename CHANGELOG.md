@@ -9,7 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- CI
+### Fixed
+
+### Changed
+
+### Removed
+
+## 0.2.0
+
+### Added
+
+- Dev: CI
+- Added functionality to more easily handle multiplayer control schemes
+    - MultiInput
+    - MultiAction
+    - MultiActionMapPlugin
 
 ### Fixed
 
