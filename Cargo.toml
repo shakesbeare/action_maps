@@ -11,7 +11,7 @@ categories = [ "game-dev", "game-engine", "game-engine-plugin" ]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy_app = "0.12.0"
+bevy_app = "0.12.1"
 bevy_ecs = "0.12.1"
 bevy_input = "0.12.0"
 
