@@ -109,8 +109,7 @@ impl Plugin for ActionMapPlugin {
     fn build(&self, app: &mut App) {
         app.configure_sets(
             PreUpdate,
-            ActionMapSet::HandleActions
-                .after(ActionMapSet::ReadEvents),
+            ActionMapSet::HandleActions.after(ActionMapSet::ReadEvents),
         )
         .init_resource::<ControlScheme>()
         .init_resource::<ActionInput>()

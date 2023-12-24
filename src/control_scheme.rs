@@ -66,9 +66,7 @@ impl ControlScheme {
         self.0.iter()
     }
 
-    pub fn iter_mut(
-        &mut self,
-    ) -> impl Iterator<Item = (&Action, &mut UniversalInput)> {
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = (&Action, &mut UniversalInput)> {
         self.0.iter_mut()
     }
 }

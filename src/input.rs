@@ -59,10 +59,7 @@ impl ActionInput {
         self.0.just_pressed(input.into())
     }
 
-    pub fn any_just_pressed<A>(
-        &self,
-        inputs: impl IntoIterator<Item = A>,
-    ) -> bool
+    pub fn any_just_pressed<A>(&self, inputs: impl IntoIterator<Item = A>) -> bool
     where
         A: Into<Action>,
     {
