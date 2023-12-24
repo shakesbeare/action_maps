@@ -1,17 +1,14 @@
 extern crate bevy;
 
 use action_maps::get_scan_code;
-use action_maps::prelude::*;
+use action_maps::multiplayer::*;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
 #[derive(Component)]
 struct Controllable;
 
 #[derive(Component)]
-enum HasColor {
-    Red,
-    Purple,
-}
+struct PlayerId(usize);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum Actions {
@@ -19,7 +16,6 @@ enum Actions {
     Left,
     Down,
     Right,
-    ChangeColor,
 }
 
 impl From<Actions> for Action {
@@ -29,7 +25,6 @@ impl From<Actions> for Action {
             Actions::Left => Action::from("Left"),
             Actions::Down => Action::from("Down"),
             Actions::Right => Action::from("Right"),
-            Actions::ChangeColor => Action::from("ChangeColor"),
         }
     }
 }
@@ -37,7 +32,7 @@ impl From<Actions> for Action {
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugins(ActionMapPlugin)
+        .add_plugins(MultiActionMapPlugin)
         .add_systems(PreStartup, setup)
         .add_systems(PreUpdate, handle_input.in_set(ActionMapSet::HandleActions))
         .run();
@@ -45,36 +40,56 @@ fn main() {
 
 fn setup(
     mut commands: Commands,
-    mut control_scheme: ResMut<ControlScheme>,
+    mut inputs: ResMut<MultiInput>,
+    mut control_schemes: ResMut<MultiScheme>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    control_scheme.insert(Actions::Up, ScanCode(get_scan_code("W")));
-    control_scheme.insert(Actions::Left, ScanCode(get_scan_code("A")));
-    control_scheme.insert(Actions::Down, ScanCode(get_scan_code("S")));
-    control_scheme.insert(Actions::Right, ScanCode(get_scan_code("D")));
-    control_scheme.insert(Actions::ChangeColor, MouseButton::Left);
+    let wasd = ControlScheme::with_controls(vec![
+        (Actions::Up, ScanCode(get_scan_code("W"))),
+        (Actions::Left, ScanCode(get_scan_code("A"))),
+        (Actions::Down, ScanCode(get_scan_code("S"))),
+        (Actions::Right, ScanCode(get_scan_code("D"))),
+    ]);
+    let arrows = ControlScheme::with_controls(vec![
+        (Actions::Up, ScanCode(get_scan_code("Up"))),
+        (Actions::Left, ScanCode(get_scan_code("Left"))),
+        (Actions::Down, ScanCode(get_scan_code("Down"))),
+        (Actions::Right, ScanCode(get_scan_code("Right"))),
+    ]);
+    control_schemes.insert(0, wasd);
+    control_schemes.insert(1, arrows);
+    inputs.has_players(2);
 
     commands.spawn(Camera2dBundle::default());
     commands.spawn((
         MaterialMesh2dBundle {
             mesh: meshes.add(shape::Circle::new(50.).into()).into(),
             material: materials.add(ColorMaterial::from(Color::PURPLE)),
+            transform: Transform::from_translation(Vec3::new(-75., 0., 1.)),
+            ..default()
+        },
+        Controllable,
+        PlayerId(0),
+    ));
+    commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: meshes.add(shape::Circle::new(50.).into()).into(),
+            material: materials.add(ColorMaterial::from(Color::RED)),
             transform: Transform::from_translation(Vec3::new(-150., 0., 0.)),
             ..default()
         },
         Controllable,
-        HasColor::Purple,
+        PlayerId(1),
     ));
 }
 
 fn handle_input(
-    actions: Res<ActionInput>,
-    mut query: Query<&mut Transform, With<Controllable>>,
-    mut mats: Query<(&mut Handle<ColorMaterial>, &mut HasColor)>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    multi_input: Res<MultiInput>,
+    mut query: Query<(&mut Transform, &PlayerId), With<Controllable>>,
 ) {
-    for mut transform in query.iter_mut() {
+    for (mut transform, PlayerId(id)) in query.iter_mut() {
+        let actions = multi_input.get(*id).unwrap();
         if actions.pressed(Actions::Left) {
             transform.translation.x -= 1.;
         }
@@ -86,20 +101,6 @@ fn handle_input(
         }
         if actions.pressed(Actions::Down) {
             transform.translation.y -= 1.;
-        }
-    }
-
-    if actions.just_pressed(Actions::ChangeColor) {
-        let (mut mat, mut has_color) = mats.single_mut();
-        match *has_color {
-            HasColor::Red => {
-                *mat = materials.add(ColorMaterial::from(Color::PURPLE));
-                *has_color = HasColor::Purple;
-            }
-            HasColor::Purple => {
-                *mat = materials.add(ColorMaterial::from(Color::RED));
-                *has_color = HasColor::Red;
-            }
         }
     }
 }
