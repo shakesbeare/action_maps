@@ -1,8 +1,8 @@
 extern crate bevy;
 
-use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-use action_maps::prelude::*;
 use action_maps::get_scan_code;
+use action_maps::prelude::*;
+use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
 #[derive(Component)]
 struct Controllable;
@@ -39,10 +39,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(ActionMapPlugin)
         .add_systems(PreStartup, setup)
-        .add_systems(
-            PreUpdate,
-            handle_input.in_set(ActionMapSet::HandleActions),
-        )
+        .add_systems(PreUpdate, handle_input.in_set(ActionMapSet::HandleActions))
         .run();
 }
 
