@@ -62,6 +62,27 @@ impl MultiInput {
     }
 }
 
+/// Eases the setup process for binding keys for multiplayer. The first argument is a
+/// MultiInput object, the second is a MultiScheme object, and the remaining objects
+/// are tuples containing one or more tuples of type
+/// `(A: Into<Action>, I: Into<UniversalInput>)`.
+/// ```rust
+/// use bevy::prelude::*;
+/// use action_maps::multiplayer::*;
+///
+/// fn setup(mut inputs: ResMut<MultiInput>, mut schemes: ResMut<MultiScheme>) {
+///     make_multi_input!(
+///         inputs,
+///         schemes,
+///         (
+///             ("A", KeyCode::A),
+///         ),
+///         (
+///             ("Left", KeyCode::Left),
+///         )
+///     )
+/// }
+/// ```
 #[macro_export]
 macro_rules! make_multi_input {
     ($multi_input:ident, $multi_scheme:ident, $( ( $( ($A:expr, $I:expr) $(,)? ),* ) ),*    ) => {

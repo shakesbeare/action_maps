@@ -6,6 +6,7 @@ use std::collections::HashMap;
 /// ```rust
 /// use action_maps::multiplayer::*;
 /// use action_maps::get_scan_code;
+/// use action_maps::make_controls;
 /// use bevy::prelude::*;
 ///
 /// #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -28,12 +29,12 @@ use std::collections::HashMap;
 /// }
 ///
 /// fn bind_keys(mut controls: ResMut<MultiScheme>) {
-///     let wasd = ControlScheme::with_controls(vec![
-///         (Actions::Up, ScanCode(get_scan_code("W"))),
-///         (Actions::Left, ScanCode(get_scan_code("A"))),
-///         (Actions::Down, ScanCode(get_scan_code("S"))),
-///         (Actions::Right, ScanCode(get_scan_code("D"))),
-///    ]);
+///     let wasd = make_controls!(
+///         (Actions::Up, KeyCode::W),
+///         (Actions::Left, KeyCode::A),
+///         (Actions::Down, KeyCode::S),
+///         (Actions::Right, KeyCode::D),
+///    );
 ///    controls.insert(0 /* player id */, wasd);
 /// }
 /// ```

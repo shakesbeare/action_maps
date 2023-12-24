@@ -15,6 +15,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## 0.3.0
+
+### Added
+- `make_controls!`
+- `make_multi_input!`
+
+### Fixed
+
+### Changed
+
+### Removed
+
+- `ControlScheme::with_controls`
+
+## 0.2.1
+
+### Changed
+
+- Dev: `examples/` and `assets/` now excluded from publishing
+- Bump Bevy to 0.12.1
+
 ## 0.2.0
 
 ### Added

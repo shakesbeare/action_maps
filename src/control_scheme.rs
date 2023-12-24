@@ -17,7 +17,7 @@ use crate::input_type::UniversalInput;
 ///    control_scheme.insert("Shoot", MouseButton::Left);
 /// }
 /// ```
-#[derive(Debug, Clone, Resource, Default)]
+#[derive(Debug, Clone, Resource, Default, PartialEq, Eq)]
 pub struct ControlScheme(HashMap<Action, UniversalInput>);
 
 #[allow(dead_code)]
@@ -75,9 +75,26 @@ impl ControlScheme {
     }
 }
 
+/// Eases the creation of large control schemes by accepting any number of tuples with
+/// with the type `(A: Into<Action>, I: Into<UniversalInput>)`.
+/// ```rust
+/// use action_maps::prelude::*;
+/// use bevy::prelude::*;
+///
+/// let mut control_scheme = ControlScheme::default();
+/// control_scheme.insert("A", KeyCode::A);
+/// control_scheme.insert("W", KeyCode::W);
+///
+/// let with_macro = make_controls!(
+///     ("A", KeyCode::A),
+///     ("W", KeyCode::W),
+/// );
+///
+/// assert_eq!(control_scheme, with_macro);
+/// ```
 #[macro_export]
 macro_rules! make_controls {
-    ( $( ($A: expr, $I: expr) ),*) => {
+    ( $( ($A: expr, $I: expr) $(,)? ),*) => {
         {
             let mut controls = ControlScheme::default();
             $(

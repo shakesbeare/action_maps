@@ -21,6 +21,12 @@ fn bind_keys(
     mut control_scheme: ResMut<ControlScheme>
 ) {
     control_scheme.insert("Jump", KeyCode::Space);
+    control_scheme.insert("A", KeyCode::A);
+    // or...
+    control_scheme.set(make_controls!(
+        ("Jump", KeyCode::Space),
+        ("A", KeyCode::A),
+    ));
 }
 ```
 
@@ -70,6 +76,10 @@ fn bind_keys(
     mut control_scheme: ResMut<ControlScheme>
 ) {
     control_scheme.insert(Actions::Up, KeyCode::W);
+    // or...
+    control_scheme.set(make_controls!(
+        (Actions::Up, KeyCode::W),
+    ));
 }
 ```
 
@@ -113,23 +123,22 @@ fn bind_keys(
     mut inputs: ResMut<MultiInput>,
     mut control_schemes: ResMut<MultiScheme>,
 ) {
-    let wasd = ControlScheme::with_controls(vec![
-        (Actions::Up, ScanCode(get_scan_code("W"))),
-        (Actions::Left, ScanCode(get_scan_code("A"))),
-        (Actions::Down, ScanCode(get_scan_code("S"))),
-        (Actions::Right, ScanCode(get_scan_code("D"))),
-    ]);
-    let arrows = ControlScheme::with_controls(
-        vec![
+    make_multi_input!(
+        inputs,
+        control_schemes,
+        (
+            (Actions::Up, ScanCode(get_scan_code("W"))),
+            (Actions::Left, ScanCode(get_scan_code("A"))),
+            (Actions::Down, ScanCode(get_scan_code("S"))),
+            (Actions::Right, ScanCode(get_scan_code("D"))),
+        ),
+        (
             (Actions::Up, ScanCode(get_scan_code("Up"))),
             (Actions::Left, ScanCode(get_scan_code("Left"))),
             (Actions::Down, ScanCode(get_scan_code("Down"))),
             (Actions::Right, ScanCode(get_scan_code("Right"))),
-        ]
+        )
     );
-    control_schemes.insert(0, wasd);
-    control_schemes.insert(1, arrows);
-    inputs.has_players(2);
 }
 
 
