@@ -17,21 +17,13 @@ use crate::input_type::UniversalInput;
 ///    control_scheme.insert("Shoot", MouseButton::Left);
 /// }
 /// ```
-#[derive(Debug, Clone, Resource, Default)]
+#[derive(Debug, Clone, Resource, Default, PartialEq, Eq)]
 pub struct ControlScheme(HashMap<Action, UniversalInput>);
 
 #[allow(dead_code)]
 impl ControlScheme {
-    pub fn with_controls<A, I>(bindings: Vec<(A, I)>) -> Self
-    where
-        A: Into<Action>,
-        I: Into<UniversalInput>,
-    {
-        let mut scheme = ControlScheme::default();
-        for (action, input) in bindings.into_iter() {
-            scheme.insert(action, input);
-        }
-        scheme
+    pub fn set(&mut self, other: ControlScheme) {
+        self.0 = other.0;
     }
 
     pub fn insert<A, I>(&mut self, action: A, input: I)
@@ -80,5 +72,35 @@ impl ControlScheme {
 
     pub fn iter_mut(&mut self) -> impl Iterator<Item = (&Action, &mut UniversalInput)> {
         self.0.iter_mut()
+    }
+}
+
+/// Eases the creation of large control schemes by accepting any number of tuples with
+/// with the type `(A: Into<Action>, I: Into<UniversalInput>)`.
+/// ```rust
+/// use action_maps::prelude::*;
+/// use bevy::prelude::*;
+///
+/// let mut control_scheme = ControlScheme::default();
+/// control_scheme.insert("A", KeyCode::A);
+/// control_scheme.insert("W", KeyCode::W);
+///
+/// let with_macro = make_controls!(
+///     ("A", KeyCode::A),
+///     ("W", KeyCode::W),
+/// );
+///
+/// assert_eq!(control_scheme, with_macro);
+/// ```
+#[macro_export]
+macro_rules! make_controls {
+    ( $( ($A: expr, $I: expr) $(,)? ),*) => {
+        {
+            let mut controls = ControlScheme::default();
+            $(
+                controls.insert($A, $I);
+            )*
+            controls
+        }
     }
 }

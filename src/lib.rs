@@ -14,12 +14,14 @@ pub mod prelude {
     pub use crate::action::*;
     pub use crate::control_scheme::*;
     pub use crate::input::*;
+    pub use crate::make_controls;
 }
 
 pub mod multiplayer {
     pub use crate::action::*;
     pub use crate::control_scheme::*;
     pub use crate::input::*;
+    pub use crate::make_multi_input;
     pub use crate::multi_input::*;
     pub use crate::multi_scheme::*;
 }

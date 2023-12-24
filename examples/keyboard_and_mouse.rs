@@ -49,11 +49,13 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    control_scheme.insert(Actions::Up, ScanCode(get_scan_code("W")));
-    control_scheme.insert(Actions::Left, ScanCode(get_scan_code("A")));
-    control_scheme.insert(Actions::Down, ScanCode(get_scan_code("S")));
-    control_scheme.insert(Actions::Right, ScanCode(get_scan_code("D")));
-    control_scheme.insert(Actions::ChangeColor, MouseButton::Left);
+    control_scheme.set(make_controls!(
+        (Actions::Up, ScanCode(get_scan_code("W"))),
+        (Actions::Left, ScanCode(get_scan_code("A"))),
+        (Actions::Down, ScanCode(get_scan_code("S"))),
+        (Actions::Right, ScanCode(get_scan_code("D"))),
+        (Actions::ChangeColor, MouseButton::Left)
+    ));
 
     commands.spawn(Camera2dBundle::default());
     commands.spawn((
