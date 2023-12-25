@@ -1,6 +1,6 @@
 use crate::action::Action;
 use bevy_ecs::system::Resource;
-use bevy_input::Input as BevyInput;
+use bevy_input::Input;
 
 /// A wrapper around `bevy_input::Input` for use with the more generic `Action`s.
 /// The interface is exactly the same as `bevy_input::Input`. See `ControlScheme` for details on
@@ -16,7 +16,7 @@ use bevy_input::Input as BevyInput;
 /// }
 /// ```
 #[derive(Debug, Clone, Resource, Default)]
-pub struct ActionInput(BevyInput<Action>);
+pub struct ActionInput(Input<Action>);
 
 impl ActionInput {
     pub fn press<A>(&mut self, input: A)

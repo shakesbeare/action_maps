@@ -8,12 +8,12 @@ use bevy_input::{
     gamepad::GamepadButton,
     keyboard::{KeyCode, ScanCode},
     mouse::MouseButton,
-    Input as BevyInput,
+    Input,
 };
 
 use crate::action_input::ActionInput;
-use crate::universal_input::Key;
-use crate::universal_input::UniversalInput;
+use crate::input::Key;
+use crate::input::UniversalInput;
 use crate::{
     control_scheme::ControlScheme, multi_input::MultiInput, multi_scheme::MultiScheme,
 };
@@ -44,20 +44,12 @@ pub enum ActionMapSet {
     HandleActions,
 }
 
-pub fn universal_input_system(
-    keyboard_events: EventReader<KeyboardInput>,
-    gamepad_events: EventReader<GamepadButtonChangedEvent>,
-    mouse_button_events: EventReader<MouseButtonInput>,
-) {
-
-}
-
 pub fn action_input_system(
     mut actions: ResMut<ActionInput>,
-    keycodes: Res<BevyInput<KeyCode>>,
-    scancodes: Res<BevyInput<ScanCode>>,
-    mouse_buttons: Res<BevyInput<MouseButton>>,
-    gamepad_buttons: Res<BevyInput<GamepadButton>>,
+    keycodes: Res<Input<KeyCode>>,
+    scancodes: Res<Input<ScanCode>>,
+    mouse_buttons: Res<Input<MouseButton>>,
+    gamepad_buttons: Res<Input<GamepadButton>>,
     control_scheme: Res<ControlScheme>,
 ) {
     actions.bypass_change_detection().clear();
@@ -103,10 +95,10 @@ pub fn action_input_system(
 
 pub fn multi_action_input_system(
     mut inputs: ResMut<MultiInput>,
-    keycodes: Res<BevyInput<KeyCode>>,
-    scancodes: Res<BevyInput<ScanCode>>,
-    mouse_buttons: Res<BevyInput<MouseButton>>,
-    gamepad_buttons: Res<BevyInput<GamepadButton>>,
+    keycodes: Res<Input<KeyCode>>,
+    scancodes: Res<Input<ScanCode>>,
+    mouse_buttons: Res<Input<MouseButton>>,
+    gamepad_buttons: Res<Input<GamepadButton>>,
     schemes: Res<MultiScheme>,
 ) {
     inputs.bypass_change_detection();

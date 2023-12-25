@@ -2,7 +2,7 @@ use bevy_ecs::system::Resource;
 use std::collections::HashMap;
 
 use crate::action::Action;
-use crate::input_type::UniversalInput;
+use crate::input::UniversalInput;
 
 /// A wrapper around a map of `Action`s to `UniversalInput`s.  
 /// Example:
@@ -103,4 +103,19 @@ macro_rules! make_controls {
             controls
         }
     }
+}
+
+#[test]
+fn test_make_controls() {
+    use bevy::prelude::KeyCode;
+
+    let mut cs = ControlScheme::default();
+    let mut cs_t = ControlScheme::default();
+
+    cs.insert("A", KeyCode::A);
+    cs.insert("W", KeyCode::W);
+
+    cs_t.set(make_controls!(("A", KeyCode::A), ("W", KeyCode::W)));
+
+    assert_eq!(cs, cs_t);
 }

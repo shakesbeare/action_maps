@@ -156,3 +156,8 @@ fn handle_input(
 ## Planned Changes
 
 - Support for Axis type inputs
+
+## Known Issues
+
+- ActionInput resource doesn't get update for a single frame after Input resources are
+    updated

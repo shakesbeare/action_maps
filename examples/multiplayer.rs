@@ -1,7 +1,7 @@
 extern crate bevy;
 
 use action_maps::get_scan_code;
-use action_maps::multiplayer::*;
+use action_maps::multiplayer_prelude::*;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
 #[derive(Component)]

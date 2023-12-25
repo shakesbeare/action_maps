@@ -1,12 +1,23 @@
 use bevy_input::gamepad::GamepadButton;
+use bevy_input::gamepad::GamepadButtonChangedEvent;
 use bevy_input::keyboard::KeyCode;
+use bevy_input::keyboard::KeyboardInput;
 use bevy_input::keyboard::ScanCode;
 use bevy_input::mouse::MouseButton;
 use bevy_ecs::event::Event;
+use bevy_ecs::event::EventReader;
+use bevy_input::mouse::MouseButtonInput;
+
+pub fn universal_input_system(
+    keyboard_events: EventReader<KeyboardInput>,
+    gamepad_events: EventReader<GamepadButtonChangedEvent>,
+    mouse_button_events: EventReader<MouseButtonInput>,
+) {
+
+}
 
 #[derive(Event)]
 pub struct UniversalInputEvent(UniversalInput);
-
 
 /// Represents a type of input that can be mapped to an action.
 /// Allows control schemes to be more generic
