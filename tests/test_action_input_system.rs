@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use action_maps::prelude::*;
+use bevy::prelude::*;
 
 #[test]
 fn resource_responds_to_update() {
@@ -33,7 +33,7 @@ fn resource_responds_to_update() {
     assert!(ai.pressed("A"));
     assert!(ai.just_pressed("A"));
     app.update();
-    
+
     let ai = app.world.resource::<ActionInput>();
     assert!(ai.pressed("A"));
     assert!(!ai.just_pressed("A"));
@@ -43,4 +43,3 @@ fn resource_responds_to_update() {
     let ai = app.world.resource::<ActionInput>();
     assert!(!ai.pressed("A"));
 }
-

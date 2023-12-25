@@ -38,14 +38,16 @@ impl PartialEq for MultiInput {
         other_keys.sort_unstable();
 
         if self_keys.len() != other_keys.len() {
-            return false
+            return false;
         }
 
         for i in 0..self_keys.len() {
-             if self_keys[i] != other_keys[i] { return false }
+            if self_keys[i] != other_keys[i] {
+                return false;
+            }
         }
 
-        return true
+        return true;
     }
 }
 
@@ -82,9 +84,9 @@ impl MultiInput {
     }
 }
 
-/// Eases the setup process for binding keys for multiplayer. The first argument is a 
+/// Eases the setup process for binding keys for multiplayer. The first argument is a
 /// MultiInput object, the second is a MultiScheme object, and the remaining objects
-/// are tuples containing one or more tuples of type 
+/// are tuples containing one or more tuples of type
 /// `(A: Into<Action>, I: Into<UniversalInput>)`.
 /// ```rust
 /// use bevy::prelude::*;
@@ -126,8 +128,8 @@ macro_rules! make_multi_input {
 
 #[test]
 fn test_make_multi_input() {
-    use crate::controls::MultiScheme;
     use crate::controls::ControlScheme;
+    use crate::controls::MultiScheme;
     use crate::make_controls;
     use bevy::prelude::KeyCode;
 
@@ -137,27 +139,21 @@ fn test_make_multi_input() {
     let mut ms = MultiScheme::default();
     let mut ms_t = MultiScheme::default();
 
-    ms.insert(0, make_controls!(
-        ("A", KeyCode::A),
-        ("W", KeyCode::W),
-    ));
+    ms.insert(0, make_controls!(("A", KeyCode::A), ("W", KeyCode::W),));
 
-    ms.insert(1, make_controls!(
-        ("Up", KeyCode::Up),
-        ("Down", KeyCode::Down),
-    ));
+    ms.insert(
+        1,
+        make_controls!(("Up", KeyCode::Up), ("Down", KeyCode::Down),),
+    );
 
     mi.has_players(2);
 
-    make_multi_input!(mi_t, ms_t, 
-    (
-        ("A", KeyCode::A),
-        ("W", KeyCode::W),
-    ), 
-    (
-        ("Up", KeyCode::Up),
-        ("Down", KeyCode::Down),
-    ));
+    make_multi_input!(
+        mi_t,
+        ms_t,
+        (("A", KeyCode::A), ("W", KeyCode::W),),
+        (("Up", KeyCode::Up), ("Down", KeyCode::Down),)
+    );
 
     assert_eq!(mi, mi_t);
     assert_eq!(ms, ms_t);

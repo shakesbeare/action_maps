@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use action_maps::multiplayer_prelude::*;
+use bevy::prelude::*;
 
 #[test]
 fn multi_resource_responds_to_update() {
@@ -22,14 +22,7 @@ fn multi_resource_responds_to_update() {
     let mut mi = MultiInput::default();
     let mut ms = MultiScheme::default();
 
-    make_multi_input!(mi, ms,
-        (
-            ("Left", KeyCode::A),
-        ),
-        (
-            ("Left", KeyCode::Left),
-        )
-    );
+    make_multi_input!(mi, ms, (("Left", KeyCode::A),), (("Left", KeyCode::Left),));
 
     app.insert_resource(mi);
     app.insert_resource(ms);
@@ -42,8 +35,12 @@ fn multi_resource_responds_to_update() {
     assert!(mi.get(0).unwrap().pressed("Left"));
     assert!(!mi.get(1).unwrap().pressed("Left"));
 
-    app.world.resource_mut::<Input<KeyCode>>().release(KeyCode::A);
-    app.world.resource_mut::<Input<KeyCode>>().press(KeyCode::Left);
+    app.world
+        .resource_mut::<Input<KeyCode>>()
+        .release(KeyCode::A);
+    app.world
+        .resource_mut::<Input<KeyCode>>()
+        .press(KeyCode::Left);
     app.update(); // expected one frame delay
 
     let mi = app.world.resource::<MultiInput>();
