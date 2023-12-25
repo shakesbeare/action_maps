@@ -1,5 +1,4 @@
 use bevy_input::gamepad::GamepadButton;
-// use bevy_input::gamepad::GamepadButtonType;
 use bevy_input::keyboard::KeyCode;
 use bevy_input::keyboard::ScanCode;
 use bevy_input::mouse::MouseButton;

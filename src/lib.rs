@@ -3,26 +3,42 @@
 #![allow(clippy::needless_return, clippy::multiple_crate_versions)]
 #![warn(dead_code)]
 
-pub mod action;
-pub mod control_scheme;
-pub mod input;
-pub mod input_type;
-pub mod multi_input;
-pub mod multi_scheme;
+mod action;
+mod action_input;
+mod control_scheme;
+mod multi_input;
+mod multi_scheme;
+mod plugin;
+mod universal_input;
+
+pub use crate::plugin::action_input_system;
+pub use crate::plugin::multi_action_input_system;
 
 pub mod prelude {
-    pub use crate::action::*;
-    pub use crate::control_scheme::*;
-    pub use crate::input::*;
+    pub use crate::actions::Action;
+    pub use crate::actions::ActionInput;
+    pub use crate::controls::ControlScheme;
     pub use crate::make_controls;
+    pub use crate::plugin::ActionMapPlugin;
+    pub use crate::plugin::ActionMapSet;
 }
 
-pub mod multiplayer {
-    pub use crate::action::*;
-    pub use crate::control_scheme::*;
-    pub use crate::input::*;
+pub mod multiplayer_prelude {
     pub use crate::make_multi_input;
+    pub use crate::multi_input::MultiInput;
+    pub use crate::multi_scheme::MultiScheme;
+    pub use crate::plugin::MultiActionMapPlugin;
+    pub use crate::prelude::*;
+}
+
+pub mod actions {
+    pub use crate::action::Action;
+    pub use crate::action_input::*;
     pub use crate::multi_input::*;
+}
+
+pub mod controls {
+    pub use crate::control_scheme::*;
     pub use crate::multi_scheme::*;
 }
 

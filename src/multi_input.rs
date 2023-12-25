@@ -1,10 +1,10 @@
-use crate::input::ActionInput;
+use crate::action_input::ActionInput;
 use bevy_ecs::system::Resource;
 use std::collections::HashMap;
 
 /// Helper function to be enable local multiplayer
 /// ```rust
-/// use action_maps::multiplayer::*;
+/// use action_maps::multiplayer_prelude::*;
 /// use bevy::prelude::*;
 ///
 /// #[derive(Component)]
@@ -27,6 +27,28 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, Resource, Default)]
 pub struct MultiInput {
     map: HashMap<usize, ActionInput>,
+}
+
+impl PartialEq for MultiInput {
+    fn eq(&self, other: &Self) -> bool {
+        let mut self_keys = self.keys().collect::<Vec<&usize>>();
+        let mut other_keys = other.keys().collect::<Vec<&usize>>();
+
+        self_keys.sort_unstable();
+        other_keys.sort_unstable();
+
+        if self_keys.len() != other_keys.len() {
+            return false;
+        }
+
+        for i in 0..self_keys.len() {
+            if self_keys[i] != other_keys[i] {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 
 impl MultiInput {
@@ -68,7 +90,7 @@ impl MultiInput {
 /// `(A: Into<Action>, I: Into<UniversalInput>)`.
 /// ```rust
 /// use bevy::prelude::*;
-/// use action_maps::multiplayer::*;
+/// use action_maps::multiplayer_prelude::*;
 ///
 /// fn setup(mut inputs: ResMut<MultiInput>, mut schemes: ResMut<MultiScheme>) {
 ///     make_multi_input!(
@@ -87,7 +109,9 @@ impl MultiInput {
 macro_rules! make_multi_input {
     ($multi_input:ident, $multi_scheme:ident, $( ( $( ($A:expr, $I:expr) $(,)? ),* ) ),*    ) => {
         {
-            use action_maps::make_controls;
+            use $crate::make_controls;
+            use $crate::controls::ControlScheme;
+
             let mut __count = 0;
             $(
             let __controls = make_controls!(
@@ -100,4 +124,37 @@ macro_rules! make_multi_input {
             $multi_input.has_players(__count);
         }
     }
+}
+
+#[test]
+fn test_make_multi_input() {
+    use crate::controls::ControlScheme;
+    use crate::controls::MultiScheme;
+    use crate::make_controls;
+    use bevy::prelude::KeyCode;
+
+    let mut mi = MultiInput::default();
+    let mut mi_t = MultiInput::default();
+
+    let mut ms = MultiScheme::default();
+    let mut ms_t = MultiScheme::default();
+
+    ms.insert(0, make_controls!(("A", KeyCode::A), ("W", KeyCode::W),));
+
+    ms.insert(
+        1,
+        make_controls!(("Up", KeyCode::Up), ("Down", KeyCode::Down),),
+    );
+
+    mi.has_players(2);
+
+    make_multi_input!(
+        mi_t,
+        ms_t,
+        (("A", KeyCode::A), ("W", KeyCode::W),),
+        (("Up", KeyCode::Up), ("Down", KeyCode::Down),)
+    );
+
+    assert_eq!(mi, mi_t);
+    assert_eq!(ms, ms_t);
 }

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 /// Helper type to be used for local multiplayer
 /// ```rust
-/// use action_maps::multiplayer::*;
+/// use action_maps::multiplayer_prelude::*;
 /// use action_maps::get_scan_code;
 /// use action_maps::make_controls;
 /// use bevy::prelude::*;
@@ -38,7 +38,7 @@ use std::collections::HashMap;
 ///    controls.insert(0 /* player id */, wasd);
 /// }
 /// ```
-#[derive(Debug, Clone, Resource, Default)]
+#[derive(PartialEq, Debug, Clone, Resource, Default)]
 pub struct MultiScheme {
     map: HashMap<usize, ControlScheme>,
 }
