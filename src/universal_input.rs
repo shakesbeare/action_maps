@@ -1,27 +1,23 @@
-use bevy_ecs::change_detection::DetectChangesMut;
-use bevy_ecs::event::Event;
-use bevy_ecs::event::EventReader;
-use bevy_ecs::event::EventWriter;
-use bevy_ecs::system::Res;
-use bevy_ecs::system::ResMut;
-use bevy_input::gamepad::GamepadButton;
-use bevy_input::gamepad::GamepadButtonChangedEvent;
-use bevy_input::gamepad::GamepadButtonInput;
-use bevy_input::gamepad::GamepadButtonType;
-use bevy_input::gamepad::GamepadSettings;
-use bevy_input::keyboard::KeyCode;
-use bevy_input::keyboard::KeyboardInput;
-use bevy_input::keyboard::ScanCode;
-use bevy_input::mouse::MouseButton;
-use bevy_input::mouse::MouseButtonInput;
-use bevy_input::ButtonState;
-use bevy_log::warn;
-use bevy_reflect::Enum;
+use bevy::ecs::change_detection::DetectChangesMut;
+use bevy::input::keyboard::NativeKeyCode;
+use bevy::ecs::event::Event;
+use bevy::ecs::event::EventReader;
+use bevy::ecs::event::EventWriter;
+use bevy::ecs::system::Res;
+use bevy::ecs::system::ResMut;
+use bevy::input::gamepad::GamepadButton;
+use bevy::input::gamepad::GamepadButtonChangedEvent;
+use bevy::input::gamepad::GamepadButtonInput;
+use bevy::input::gamepad::GamepadButtonType;
+use bevy::input::gamepad::GamepadSettings;
+use bevy::input::keyboard::KeyCode;
+use bevy::input::keyboard::KeyboardInput;
+use bevy::input::mouse::MouseButton;
+use bevy::input::mouse::MouseButtonInput;
+use bevy::input::ButtonState;
 
 use crate::actions::MultiInput;
 use crate::controls::MultiScheme;
-use crate::get_key;
-use crate::get_scan_code;
 use crate::prelude::ActionInput;
 use crate::prelude::ControlScheme;
 
@@ -94,10 +90,12 @@ fn update_inputs(
 ) {
     for event in keyboard_events {
         let KeyboardInput {
-            scan_code, state, ..
+            key_code,
+            state,
+            ..
         } = event;
 
-        let key: UniversalInput = ScanCode(*scan_code).into();
+        let key: UniversalInput = (*key_code).into();
         if let Some(action) = control_scheme.get(key) {
             match state {
                 ButtonState::Pressed => action_input.press(*action),
@@ -152,358 +150,473 @@ pub struct UniversalInputEvent(UniversalInput);
 #[repr(u32)]
 #[derive(Hash, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub enum UniversalInput {
-    /// The `1` key over the letters.
-    Key1,
-    /// The `2` key over the letters.
-    Key2,
-    /// The `3` key over the letters.
-    Key3,
-    /// The `4` key over the letters.
-    Key4,
-    /// The `5` key over the letters.
-    Key5,
-    /// The `6` key over the letters.
-    Key6,
-    /// The `7` key over the letters.
-    Key7,
-    /// The `8` key over the letters.
-    Key8,
-    /// The `9` key over the letters.
-    Key9,
-    /// The `0` key over the letters.
-    Key0,
-
-    /// The `A` key.
-    A,
-    /// The `B` key.
-    B,
-    /// The `C` key.
-    C,
-    /// The `D` key.
-    D,
-    /// The `E` key.
-    E,
-    /// The `F` key.
-    F,
-    /// The `G` key.
-    G,
-    /// The `H` key.
-    H,
-    /// The `I` key.
-    I,
-    /// The `J` key.
-    J,
-    /// The `K` key.
-    K,
-    /// The `L` key.
-    L,
-    /// The `M` key.
-    M,
-    /// The `N` key.
-    N,
-    /// The `O` key.
-    O,
-    /// The `P` key.
-    P,
-    /// The `Q` key.
-    Q,
-    /// The `R` key.
-    R,
-    /// The `S` key.
-    S,
-    /// The `T` key.
-    T,
-    /// The `U` key.
-    U,
-    /// The `V` key.
-    V,
-    /// The `W` key.
-    W,
-    /// The `X` key.
-    X,
-    /// The `Y` key.
-    Y,
-    /// The `Z` key.
-    Z,
-
-    /// The `Escape` / `ESC` key, next to the `F1` key.
-    Escape,
-
-    /// The `F1` key.
-    F1,
-    /// The `F2` key.
-    F2,
-    /// The `F3` key.
-    F3,
-    /// The `F4` key.
-    F4,
-    /// The `F5` key.
-    F5,
-    /// The `F6` key.
-    F6,
-    /// The `F7` key.
-    F7,
-    /// The `F8` key.
-    F8,
-    /// The `F9` key.
-    F9,
-    /// The `F10` key.
-    F10,
-    /// The `F11` key.
-    F11,
-    /// The `F12` key.
-    F12,
-    /// The `F13` key.
-    F13,
-    /// The `F14` key.
-    F14,
-    /// The `F15` key.
-    F15,
-    /// The `F16` key.
-    F16,
-    /// The `F17` key.
-    F17,
-    /// The `F18` key.
-    F18,
-    /// The `F19` key.
-    F19,
-    /// The `F20` key.
-    F20,
-    /// The `F21` key.
-    F21,
-    /// The `F22` key.
-    F22,
-    /// The `F23` key.
-    F23,
-    /// The `F24` key.
-    F24,
-
-    /// The `Snapshot` / `Print Screen` key.
-    Snapshot,
-    /// The `Scroll` / `Scroll Lock` key.
-    Scroll,
-    /// The `Pause` / `Break` key, next to the `Scroll` key.
-    Pause,
-
-    /// The `Insert` key, next to the `Backspace` key.
-    Insert,
-    /// The `Home` key.
-    Home,
-    /// The `Delete` key.
-    Delete,
-    /// The `End` key.
-    End,
-    /// The `PageDown` key.
-    PageDown,
-    /// The `PageUp` key.
-    PageUp,
-
-    /// The `Left` / `Left Arrow` key.
-    Left,
-    /// The `Up` / `Up Arrow` key.
-    Up,
-    /// The `Right` / `Right Arrow` key.
-    Right,
-    /// The `Down` / `Down Arrow` key.
-    Down,
-
-    /// The `Back` / `Backspace` key.
-    Back,
-    /// The `Return` / `Enter` key.
-    Return,
-    /// The `Space` / `Spacebar` / ` ` key.
-    Space,
-
-    /// The `Compose` key on Linux.
-    Compose,
-    /// The `Caret` / `^` key.
-    Caret,
-
-    /// The `Numlock` key.
-    Numlock,
-    /// The `Numpad0` / `0` key.
-    Numpad0,
-    /// The `Numpad1` / `1` key.
-    Numpad1,
-    /// The `Numpad2` / `2` key.
-    Numpad2,
-    /// The `Numpad3` / `3` key.
-    Numpad3,
-    /// The `Numpad4` / `4` key.
-    Numpad4,
-    /// The `Numpad5` / `5` key.
-    Numpad5,
-    /// The `Numpad6` / `6` key.
-    Numpad6,
-    /// The `Numpad7` / `7` key.
-    Numpad7,
-    /// The `Numpad8` / `8` key.
-    Numpad8,
-    /// The `Numpad9` / `9` key.
-    Numpad9,
-
-    /// The `AbntC1` key.
-    AbntC1,
-    /// The `AbntC2` key.
-    AbntC2,
-
-    /// The `NumpadAdd` / `+` key.
-    NumpadAdd,
-    /// The `Apostrophe` / `'` key.
-    Apostrophe,
-    /// The `Apps` key.
-    Apps,
-    /// The `Asterisk` / `*` key.
-    Asterisk,
-    /// The `Plus` / `+` key.
-    Plus,
-    /// The `At` / `@` key.
-    At,
-    /// The `Ax` key.
-    Ax,
-    /// The `Backslash` / `\` key.
+/// This variant is used when the key cannot be translated to any other variant.
+    ///
+    /// The native keycode is provided (if available) so you're able to more reliably match
+    /// key-press and key-release events by hashing the [`KeyCode`]. It is also possible to use
+    /// this for keybinds for non-standard keys, but such keybinds are tied to a given platform.
+    Unidentified(NativeKeyCode),
+    /// <kbd>`</kbd> on a US keyboard. This is also called a backtick or grave.
+    /// This is the <kbd>半角</kbd>/<kbd>全角</kbd>/<kbd>漢字</kbd>
+    /// (hankaku/zenkaku/kanji) key on Japanese keyboards
+    Backquote,
+    /// Used for both the US <kbd>\\</kbd> (on the 101-key layout) and also for the key
+    /// located between the <kbd>"</kbd> and <kbd>Enter</kbd> keys on row C of the 102-,
+    /// 104- and 106-key layouts.
+    /// Labeled <kbd>#</kbd> on a UK (102) keyboard.
     Backslash,
-    /// The `Calculator` key.
-    Calculator,
-    /// The `Capital` key.
-    Capital,
-    /// The `Colon` / `:` key.
-    Colon,
-    /// The `Comma` / `,` key.
-    Comma,
-    /// The `Convert` key.
-    Convert,
-    /// The `NumpadDecimal` / `.` key.
-    NumpadDecimal,
-    /// The `NumpadDivide` / `/` key.
-    NumpadDivide,
-    /// The `Equals` / `=` key.
-    Equals,
-    /// The `Grave` / `Backtick` / `` ` `` key.
-    Grave,
-    /// The `Kana` key.
-    Kana,
-    /// The `Kanji` key.
-    Kanji,
-
-    /// The `Left Alt` key. Maps to `Left Option` on Mac.
-    AltLeft,
-    /// The `Left Bracket` / `[` key.
+    /// <kbd>[</kbd> on a US keyboard.
     BracketLeft,
-    /// The `Left Control` key.
-    ControlLeft,
-    /// The `Left Shift` key.
-    ShiftLeft,
-    /// The `Left Super` key.
-    /// Generic keyboards usually display this key with the *Microsoft Windows* logo.
-    /// Apple keyboards call this key the *Command Key* and display it using the ⌘ character.
-    #[doc(alias("LWin", "LMeta", "LLogo"))]
-    SuperLeft,
-
-    /// The `Mail` key.
-    Mail,
-    /// The `MediaSelect` key.
-    MediaSelect,
-    /// The `MediaStop` key.
-    MediaStop,
-    /// The `Minus` / `-` key.
-    Minus,
-    /// The `NumpadMultiply` / `*` key.
-    NumpadMultiply,
-    /// The `Mute` key.
-    Mute,
-    /// The `MyComputer` key.
-    MyComputer,
-    /// The `NavigateForward` / `Prior` key.
-    NavigateForward,
-    /// The `NavigateBackward` / `Next` key.
-    NavigateBackward,
-    /// The `NextTrack` key.
-    NextTrack,
-    /// The `NoConvert` key.
-    NoConvert,
-    /// The `NumpadComma` / `,` key.
-    NumpadComma,
-    /// The `NumpadEnter` key.
-    NumpadEnter,
-    /// The `NumpadEquals` / `=` key.
-    NumpadEquals,
-    /// The `Oem102` key.
-    Oem102,
-    /// The `Period` / `.` key.
-    Period,
-    /// The `PlayPause` key.
-    PlayPause,
-    /// The `Power` key.
-    Power,
-    /// The `PrevTrack` key.
-    PrevTrack,
-
-    /// The `Right Alt` key. Maps to `Right Option` on Mac.
-    AltRight,
-    /// The `Right Bracket` / `]` key.
+    /// <kbd>]</kbd> on a US keyboard.
     BracketRight,
-    /// The `Right Control` key.
-    ControlRight,
-    /// The `Right Shift` key.
-    ShiftRight,
-    /// The `Right Super` key.
-    /// Generic keyboards usually display this key with the *Microsoft Windows* logo.
-    /// Apple keyboards call this key the *Command Key* and display it using the ⌘ character.
-    #[doc(alias("RWin", "RMeta", "RLogo"))]
-    SuperRight,
-
-    /// The `Semicolon` / `;` key.
+    /// <kbd>,</kbd> on a US keyboard.
+    Comma,
+    /// <kbd>0</kbd> on a US keyboard.
+    Digit0,
+    /// <kbd>1</kbd> on a US keyboard.
+    Digit1,
+    /// <kbd>2</kbd> on a US keyboard.
+    Digit2,
+    /// <kbd>3</kbd> on a US keyboard.
+    Digit3,
+    /// <kbd>4</kbd> on a US keyboard.
+    Digit4,
+    /// <kbd>5</kbd> on a US keyboard.
+    Digit5,
+    /// <kbd>6</kbd> on a US keyboard.
+    Digit6,
+    /// <kbd>7</kbd> on a US keyboard.
+    Digit7,
+    /// <kbd>8</kbd> on a US keyboard.
+    Digit8,
+    /// <kbd>9</kbd> on a US keyboard.
+    Digit9,
+    /// <kbd>=</kbd> on a US keyboard.
+    Equal,
+    /// Located between the left <kbd>Shift</kbd> and <kbd>Z</kbd> keys.
+    /// Labeled <kbd>\\</kbd> on a UK keyboard.
+    IntlBackslash,
+    /// Located between the <kbd>/</kbd> and right <kbd>Shift</kbd> keys.
+    /// Labeled <kbd>\\</kbd> (ro) on a Japanese keyboard.
+    IntlRo,
+    /// Located between the <kbd>=</kbd> and <kbd>Backspace</kbd> keys.
+    /// Labeled <kbd>¥</kbd> (yen) on a Japanese keyboard. <kbd>\\</kbd> on a
+    /// Russian keyboard.
+    IntlYen,
+    /// <kbd>a</kbd> on a US keyboard.
+    /// Labeled <kbd>q</kbd> on an AZERTY (e.g., French) keyboard.
+    KeyA,
+    /// <kbd>b</kbd> on a US keyboard.
+    KeyB,
+    /// <kbd>c</kbd> on a US keyboard.
+    KeyC,
+    /// <kbd>d</kbd> on a US keyboard.
+    KeyD,
+    /// <kbd>e</kbd> on a US keyboard.
+    KeyE,
+    /// <kbd>f</kbd> on a US keyboard.
+    KeyF,
+    /// <kbd>g</kbd> on a US keyboard.
+    KeyG,
+    /// <kbd>h</kbd> on a US keyboard.
+    KeyH,
+    /// <kbd>i</kbd> on a US keyboard.
+    KeyI,
+    /// <kbd>j</kbd> on a US keyboard.
+    KeyJ,
+    /// <kbd>k</kbd> on a US keyboard.
+    KeyK,
+    /// <kbd>l</kbd> on a US keyboard.
+    KeyL,
+    /// <kbd>m</kbd> on a US keyboard.
+    KeyM,
+    /// <kbd>n</kbd> on a US keyboard.
+    KeyN,
+    /// <kbd>o</kbd> on a US keyboard.
+    KeyO,
+    /// <kbd>p</kbd> on a US keyboard.
+    KeyP,
+    /// <kbd>q</kbd> on a US keyboard.
+    /// Labeled <kbd>a</kbd> on an AZERTY (e.g., French) keyboard.
+    KeyQ,
+    /// <kbd>r</kbd> on a US keyboard.
+    KeyR,
+    /// <kbd>s</kbd> on a US keyboard.
+    KeyS,
+    /// <kbd>t</kbd> on a US keyboard.
+    KeyT,
+    /// <kbd>u</kbd> on a US keyboard.
+    KeyU,
+    /// <kbd>v</kbd> on a US keyboard.
+    KeyV,
+    /// <kbd>w</kbd> on a US keyboard.
+    /// Labeled <kbd>z</kbd> on an AZERTY (e.g., French) keyboard.
+    KeyW,
+    /// <kbd>x</kbd> on a US keyboard.
+    KeyX,
+    /// <kbd>y</kbd> on a US keyboard.
+    /// Labeled <kbd>z</kbd> on a QWERTZ (e.g., German) keyboard.
+    KeyY,
+    /// <kbd>z</kbd> on a US keyboard.
+    /// Labeled <kbd>w</kbd> on an AZERTY (e.g., French) keyboard, and <kbd>y</kbd> on a
+    /// QWERTZ (e.g., German) keyboard.
+    KeyZ,
+    /// <kbd>-</kbd> on a US keyboard.
+    Minus,
+    /// <kbd>.</kbd> on a US keyboard.
+    Period,
+    /// <kbd>'</kbd> on a US keyboard.
+    Quote,
+    /// <kbd>;</kbd> on a US keyboard.
     Semicolon,
-    /// The `Slash` / `/` key.
+    /// <kbd>/</kbd> on a US keyboard.
     Slash,
-    /// The `Sleep` key.
-    Sleep,
-    /// The `Stop` key.
-    Stop,
-    /// The `NumpadSubtract` / `-` key.
-    NumpadSubtract,
-    /// The `Sysrq` key.
-    Sysrq,
-    /// The `Tab` / `   ` key.
+    /// <kbd>Alt</kbd>, <kbd>Option</kbd>, or <kbd>⌥</kbd>.
+    AltLeft,
+    /// <kbd>Alt</kbd>, <kbd>Option</kbd>, or <kbd>⌥</kbd>.
+    /// This is labeled <kbd>AltGr</kbd> on many keyboard layouts.
+    AltRight,
+    /// <kbd>Backspace</kbd> or <kbd>⌫</kbd>.
+    /// Labeled <kbd>Delete</kbd> on Apple keyboards.
+    Backspace,
+    /// <kbd>CapsLock</kbd> or <kbd>⇪</kbd>
+    CapsLock,
+    /// The application context menu key, which is typically found between the right
+    /// <kbd>Super</kbd> key and the right <kbd>Control</kbd> key.
+    ContextMenu,
+    /// <kbd>Control</kbd> or <kbd>⌃</kbd>
+    ControlLeft,
+    /// <kbd>Control</kbd> or <kbd>⌃</kbd>
+    ControlRight,
+    /// <kbd>Enter</kbd> or <kbd>↵</kbd>. Labeled <kbd>Return</kbd> on Apple keyboards.
+    Enter,
+    /// The Windows, <kbd>⌘</kbd>, <kbd>Command</kbd>, or other OS symbol key.
+    SuperLeft,
+    /// The Windows, <kbd>⌘</kbd>, <kbd>Command</kbd>, or other OS symbol key.
+    SuperRight,
+    /// <kbd>Shift</kbd> or <kbd>⇧</kbd>
+    ShiftLeft,
+    /// <kbd>Shift</kbd> or <kbd>⇧</kbd>
+    ShiftRight,
+    /// <kbd> </kbd> (space)
+    Space,
+    /// <kbd>Tab</kbd> or <kbd>⇥</kbd>
     Tab,
-    /// The `Underline` / `_` key.
-    Underline,
-    /// The `Unlabeled` key.
-    Unlabeled,
-
-    /// The `VolumeDown` key.
-    VolumeDown,
-    /// The `VolumeUp` key.
-    VolumeUp,
-
-    /// The `Wake` key.
-    Wake,
-
-    /// The `WebBack` key.
-    WebBack,
-    /// The `WebFavorites` key.
-    WebFavorites,
-    /// The `WebForward` key.
-    WebForward,
-    /// The `WebHome` key.
-    WebHome,
-    /// The `WebRefresh` key.
-    WebRefresh,
-    /// The `WebSearch` key.
-    WebSearch,
-    /// The `WebStop` key.
-    WebStop,
-
-    /// The `Yen` key.
-    Yen,
-
-    /// The `Copy` key.
+    /// Japanese: <kbd>変</kbd> (henkan)
+    Convert,
+    /// Japanese: <kbd>カタカナ</kbd>/<kbd>ひらがな</kbd>/<kbd>ローマ字</kbd> (katakana/hiragana/romaji)
+    KanaMode,
+    /// Korean: HangulMode <kbd>한/영</kbd> (han/yeong)
+    ///
+    /// Japanese (Mac keyboard): <kbd>か</kbd> (kana)
+    Lang1,
+    /// Korean: Hanja <kbd>한</kbd> (hanja)
+    ///
+    /// Japanese (Mac keyboard): <kbd>英</kbd> (eisu)
+    Lang2,
+    /// Japanese (word-processing keyboard): Katakana
+    Lang3,
+    /// Japanese (word-processing keyboard): Hiragana
+    Lang4,
+    /// Japanese (word-processing keyboard): Zenkaku/Hankaku
+    Lang5,
+    /// Japanese: <kbd>無変換</kbd> (muhenkan)
+    NonConvert,
+    /// <kbd>⌦</kbd>. The forward delete key.
+    /// Note that on Apple keyboards, the key labelled <kbd>Delete</kbd> on the main part of
+    /// the keyboard is encoded as [`Backspace`].
+    ///
+    /// [`Backspace`]: Self::Backspace
+    Delete,
+    /// <kbd>Page Down</kbd>, <kbd>End</kbd>, or <kbd>↘</kbd>
+    End,
+    /// <kbd>Help</kbd>. Not present on standard PC keyboards.
+    Help,
+    /// <kbd>Home</kbd> or <kbd>↖</kbd>
+    Home,
+    /// <kbd>Insert</kbd> or <kbd>Ins</kbd>. Not present on Apple keyboards.
+    Insert,
+    /// <kbd>Page Down</kbd>, <kbd>PgDn</kbd>, or <kbd>⇟</kbd>
+    PageDown,
+    /// <kbd>Page Up</kbd>, <kbd>PgUp</kbd>, or <kbd>⇞</kbd>
+    PageUp,
+    /// <kbd>↓</kbd>
+    ArrowDown,
+    /// <kbd>←</kbd>
+    ArrowLeft,
+    /// <kbd>→</kbd>
+    ArrowRight,
+    /// <kbd>↑</kbd>
+    ArrowUp,
+    /// On the Mac, this is used for the numpad <kbd>Clear</kbd> key.
+    NumLock,
+    /// <kbd>0 Ins</kbd> on a keyboard. <kbd>0</kbd> on a phone or remote control
+    Numpad0,
+    /// <kbd>1 End</kbd> on a keyboard. <kbd>1</kbd> or <kbd>1 QZ</kbd> on a phone or remote control
+    Numpad1,
+    /// <kbd>2 ↓</kbd> on a keyboard. <kbd>2 ABC</kbd> on a phone or remote control
+    Numpad2,
+    /// <kbd>3 PgDn</kbd> on a keyboard. <kbd>3 DEF</kbd> on a phone or remote control
+    Numpad3,
+    /// <kbd>4 ←</kbd> on a keyboard. <kbd>4 GHI</kbd> on a phone or remote control
+    Numpad4,
+    /// <kbd>5</kbd> on a keyboard. <kbd>5 JKL</kbd> on a phone or remote control
+    Numpad5,
+    /// <kbd>6 →</kbd> on a keyboard. <kbd>6 MNO</kbd> on a phone or remote control
+    Numpad6,
+    /// <kbd>7 Home</kbd> on a keyboard. <kbd>7 PQRS</kbd> or <kbd>7 PRS</kbd> on a phone
+    /// or remote control
+    Numpad7,
+    /// <kbd>8 ↑</kbd> on a keyboard. <kbd>8 TUV</kbd> on a phone or remote control
+    Numpad8,
+    /// <kbd>9 PgUp</kbd> on a keyboard. <kbd>9 WXYZ</kbd> or <kbd>9 WXY</kbd> on a phone
+    /// or remote control
+    Numpad9,
+    /// <kbd>+</kbd>
+    NumpadAdd,
+    /// Found on the Microsoft Natural Keyboard.
+    NumpadBackspace,
+    /// <kbd>C</kbd> or <kbd>A</kbd> (All Clear). Also for use with numpads that have a
+    /// <kbd>Clear</kbd> key that is separate from the <kbd>NumLock</kbd> key. On the Mac, the
+    /// numpad <kbd>Clear</kbd> key is encoded as [`NumLock`].
+    ///
+    /// [`NumLock`]: Self::NumLock
+    NumpadClear,
+    /// <kbd>C</kbd> (Clear Entry)
+    NumpadClearEntry,
+    /// <kbd>,</kbd> (thousands separator). For locales where the thousands separator
+    /// is a "." (e.g., Brazil), this key may generate a <kbd>.</kbd>.
+    NumpadComma,
+    /// <kbd>. Del</kbd>. For locales where the decimal separator is "," (e.g.,
+    /// Brazil), this key may generate a <kbd>,</kbd>.
+    NumpadDecimal,
+    /// <kbd>/</kbd>
+    NumpadDivide,
+    /// The Enter key on the numpad.
+    NumpadEnter,
+    /// <kbd>=</kbd>
+    NumpadEqual,
+    /// <kbd>#</kbd> on a phone or remote control device. This key is typically found
+    /// below the <kbd>9</kbd> key and to the right of the <kbd>0</kbd> key.
+    NumpadHash,
+    /// <kbd>M</kbd> Add current entry to the value stored in memory.
+    NumpadMemoryAdd,
+    /// <kbd>M</kbd> Clear the value stored in memory.
+    NumpadMemoryClear,
+    /// <kbd>M</kbd> Replace the current entry with the value stored in memory.
+    NumpadMemoryRecall,
+    /// <kbd>M</kbd> Replace the value stored in memory with the current entry.
+    NumpadMemoryStore,
+    /// <kbd>M</kbd> Subtract current entry from the value stored in memory.
+    NumpadMemorySubtract,
+    /// <kbd>*</kbd> on a keyboard. For use with numpads that provide mathematical
+    /// operations (<kbd>+</kbd>, <kbd>-</kbd> <kbd>*</kbd> and <kbd>/</kbd>).
+    ///
+    /// Use `NumpadStar` for the <kbd>*</kbd> key on phones and remote controls.
+    NumpadMultiply,
+    /// <kbd>(</kbd> Found on the Microsoft Natural Keyboard.
+    NumpadParenLeft,
+    /// <kbd>)</kbd> Found on the Microsoft Natural Keyboard.
+    NumpadParenRight,
+    /// <kbd>*</kbd> on a phone or remote control device.
+    ///
+    /// This key is typically found below the <kbd>7</kbd> key and to the left of
+    /// the <kbd>0</kbd> key.
+    ///
+    /// Use <kbd>"NumpadMultiply"</kbd> for the <kbd>*</kbd> key on
+    /// numeric keypads.
+    NumpadStar,
+    /// <kbd>-</kbd>
+    NumpadSubtract,
+    /// <kbd>Esc</kbd> or <kbd>⎋</kbd>
+    Escape,
+    /// <kbd>Fn</kbd> This is typically a hardware key that does not generate a separate code.
+    Fn,
+    /// <kbd>FLock</kbd> or <kbd>FnLock</kbd>. Function Lock key. Found on the Microsoft
+    /// Natural Keyboard.
+    FnLock,
+    /// <kbd>PrtScr SysRq</kbd> or <kbd>Print Screen</kbd>
+    PrintScreen,
+    /// <kbd>Scroll Lock</kbd>
+    ScrollLock,
+    /// <kbd>Pause Break</kbd>
+    Pause,
+    /// Some laptops place this key to the left of the <kbd>↑</kbd> key.
+    ///
+    /// This also the "back" button (triangle) on Android.
+    BrowserBack,
+    /// BrowserFavorites
+    BrowserFavorites,
+    /// Some laptops place this key to the right of the <kbd>↑</kbd> key.
+    BrowserForward,
+    /// The "home" button on Android.
+    BrowserHome,
+    /// BrowserRefresh
+    BrowserRefresh,
+    /// BrowserSearch
+    BrowserSearch,
+    /// BrowserStop
+    BrowserStop,
+    /// <kbd>Eject</kbd> or <kbd>⏏</kbd>. This key is placed in the function section on some Apple
+    /// keyboards.
+    Eject,
+    /// Sometimes labelled <kbd>My Computer</kbd> on the keyboard
+    LaunchApp1,
+    /// Sometimes labelled <kbd>Calculator</kbd> on the keyboard
+    LaunchApp2,
+    /// LaunchMail
+    LaunchMail,
+    /// MediaPlayPause
+    MediaPlayPause,
+    /// MediaSelect
+    MediaSelect,
+    /// MediaStop
+    MediaStop,
+    /// MediaTrackNext
+    MediaTrackNext,
+    /// MediaTrackPrevious
+    MediaTrackPrevious,
+    /// This key is placed in the function section on some Apple keyboards, replacing the
+    /// <kbd>Eject</kbd> key.
+    Power,
+    /// Sleep
+    Sleep,
+    /// AudioVolumeDown
+    AudioVolumeDown,
+    /// AudioVolumeMute
+    AudioVolumeMute,
+    /// AudioVolumeUp
+    AudioVolumeUp,
+    /// WakeUp
+    WakeUp,
+    /// Legacy modifier key. Also called "Super" in certain places.
+    Meta,
+    /// Legacy modifier key.
+    Hyper,
+    /// Turbo
+    Turbo,
+    /// Abort
+    Abort,
+    /// Resume
+    Resume,
+    /// Suspend
+    Suspend,
+    /// Found on Sun’s USB keyboard.
+    Again,
+    /// Found on Sun’s USB keyboard.
     Copy,
-    /// The `Paste` key.
-    Paste,
-    /// The `Cut` key.
+    /// Found on Sun’s USB keyboard.
     Cut,
+    /// Found on Sun’s USB keyboard.
+    Find,
+    /// Found on Sun’s USB keyboard.
+    Open,
+    /// Found on Sun’s USB keyboard.
+    Paste,
+    /// Found on Sun’s USB keyboard.
+    Props,
+    /// Found on Sun’s USB keyboard.
+    Select,
+    /// Found on Sun’s USB keyboard.
+    Undo,
+    /// Use for dedicated <kbd>ひらがな</kbd> key found on some Japanese word processing keyboards.
+    Hiragana,
+    /// Use for dedicated <kbd>カタカナ</kbd> key found on some Japanese word processing keyboards.
+    Katakana,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F1,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F2,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F3,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F4,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F5,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F6,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F7,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F8,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F9,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F10,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F11,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F12,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F13,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F14,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F15,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F16,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F17,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F18,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F19,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F20,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F21,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F22,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F23,
+    /// General-purpose function key.
+    /// Usually found at the top of the keyboard.
+    F24,
+    /// General-purpose function key.
+    F25,
+    /// General-purpose function key.
+    F26,
+    /// General-purpose function key.
+    F27,
+    /// General-purpose function key.
+    F28,
+    /// General-purpose function key.
+    F29,
+    /// General-purpose function key.
+    F30,
+    /// General-purpose function key.
+    F31,
+    /// General-purpose function key.
+    F32,
+    /// General-purpose function key.
+    F33,
+    /// General-purpose function key.
+    F34,
+    /// General-purpose function key.
+    F35,
 
     /// The bottom action button of the action pad (i.e. PS: Cross, Xbox: A).
     GamepadSouth(usize),
@@ -557,6 +670,8 @@ pub enum UniversalInput {
     MouseRight,
     /// The middle mouse button.
     MouseMiddle,
+    MouseBack,
+    MouseForward,
     /// Another mouse button with the associated number.
     MouseOther(u16),
 
@@ -567,30 +682,203 @@ pub enum UniversalInput {
 
 impl From<KeyCode> for UniversalInput {
     fn from(value: KeyCode) -> Self {
-        // Key names are named exactly as they're key code.
-        // Must first convert to physical key location
-        let key_str = value.variant_name();
-        let Ok(scan_code) = get_scan_code(key_str) else {
-            warn!("Error KeyCode -> UniversalInput");
-            return UniversalInput::Unknown(0);
-        };
-        let Ok(scan_code) = get_key(scan_code) else {
-            warn!("Error KeyCode -> UniversalInput");
-            return UniversalInput::Unknown(scan_code);
-        };
-
-        scan_code
-    }
-}
-
-impl From<ScanCode> for UniversalInput {
-    fn from(value: ScanCode) -> Self {
-        let Ok(scan_code) = get_key(value.0) else {
-            warn!("Error ScanCode -> UniversalInput");
-            return UniversalInput::Unknown(value.0);
-        };
-
-        scan_code
+        match value {
+            KeyCode::Unidentified(_) => UniversalInput::Unknown(0), // TODO
+            KeyCode::Backquote => UniversalInput::Backquote,
+            KeyCode::Backslash => UniversalInput::Backslash,
+            KeyCode::BracketLeft => UniversalInput::BracketLeft,
+            KeyCode::BracketRight => UniversalInput::BracketRight,
+            KeyCode::Comma => UniversalInput::Comma,
+            KeyCode::Digit0 => UniversalInput::Digit0,
+            KeyCode::Digit1 => UniversalInput::Digit1,
+            KeyCode::Digit2 => UniversalInput::Digit2,
+            KeyCode::Digit3 => UniversalInput::Digit3,
+            KeyCode::Digit4 => UniversalInput::Digit4,
+            KeyCode::Digit5 => UniversalInput::Digit5,
+            KeyCode::Digit6 => UniversalInput::Digit6,
+            KeyCode::Digit7 => UniversalInput::Digit7,
+            KeyCode::Digit8 => UniversalInput::Digit8,
+            KeyCode::Digit9 => UniversalInput::Digit9,
+            KeyCode::Equal => UniversalInput::Equal,
+            KeyCode::IntlBackslash => UniversalInput::IntlBackslash,
+            KeyCode::IntlRo => UniversalInput::IntlRo,
+            KeyCode::IntlYen => UniversalInput::IntlYen,
+            KeyCode::KeyA => UniversalInput::KeyA,
+            KeyCode::KeyB => UniversalInput::KeyB,
+            KeyCode::KeyC => UniversalInput::KeyC,
+            KeyCode::KeyD => UniversalInput::KeyD,
+            KeyCode::KeyE => UniversalInput::KeyE,
+            KeyCode::KeyF => UniversalInput::KeyF,
+            KeyCode::KeyG => UniversalInput::KeyG,
+            KeyCode::KeyH => UniversalInput::KeyH,
+            KeyCode::KeyI => UniversalInput::KeyI,
+            KeyCode::KeyJ => UniversalInput::KeyJ,
+            KeyCode::KeyK => UniversalInput::KeyK,
+            KeyCode::KeyL => UniversalInput::KeyL,
+            KeyCode::KeyM => UniversalInput::KeyM,
+            KeyCode::KeyN => UniversalInput::KeyN,
+            KeyCode::KeyO => UniversalInput::KeyO,
+            KeyCode::KeyP => UniversalInput::KeyP,
+            KeyCode::KeyQ => UniversalInput::KeyQ,
+            KeyCode::KeyR => UniversalInput::KeyR,
+            KeyCode::KeyS => UniversalInput::KeyS,
+            KeyCode::KeyT => UniversalInput::KeyT,
+            KeyCode::KeyU => UniversalInput::KeyU,
+            KeyCode::KeyV => UniversalInput::KeyV,
+            KeyCode::KeyW => UniversalInput::KeyW,
+            KeyCode::KeyX => UniversalInput::KeyX,
+            KeyCode::KeyY => UniversalInput::KeyY,
+            KeyCode::KeyZ => UniversalInput::KeyZ,
+            KeyCode::Minus => UniversalInput::Minus,
+            KeyCode::Period => UniversalInput::Period,
+            KeyCode::Quote => UniversalInput::Quote,
+            KeyCode::Semicolon => UniversalInput::Semicolon,
+            KeyCode::Slash => UniversalInput::Slash,
+            KeyCode::AltLeft => UniversalInput::AltLeft,
+            KeyCode::AltRight => UniversalInput::AltRight,
+            KeyCode::Backspace => UniversalInput::Backspace,
+            KeyCode::CapsLock => UniversalInput::CapsLock,
+            KeyCode::ContextMenu => UniversalInput::ContextMenu,
+            KeyCode::ControlLeft => UniversalInput::ControlLeft,
+            KeyCode::ControlRight => UniversalInput::ControlRight,
+            KeyCode::Enter => UniversalInput::Enter,
+            KeyCode::SuperLeft => UniversalInput::SuperLeft,
+            KeyCode::SuperRight => UniversalInput::SuperRight,
+            KeyCode::ShiftLeft => UniversalInput::ShiftLeft,
+            KeyCode::ShiftRight => UniversalInput::ShiftRight,
+            KeyCode::Space => UniversalInput::Space,
+            KeyCode::Tab => UniversalInput::Tab,
+            KeyCode::Convert => UniversalInput::Convert,
+            KeyCode::KanaMode => UniversalInput::KanaMode,
+            KeyCode::Lang1 => UniversalInput::Lang1,
+            KeyCode::Lang2 => UniversalInput::Lang2,
+            KeyCode::Lang3 => UniversalInput::Lang3,
+            KeyCode::Lang4 => UniversalInput::Lang4,
+            KeyCode::Lang5 => UniversalInput::Lang5,
+            KeyCode::NonConvert => UniversalInput::NonConvert,
+            KeyCode::Delete => UniversalInput::Delete,
+            KeyCode::End => UniversalInput::End,
+            KeyCode::Help => UniversalInput::Help,
+            KeyCode::Home => UniversalInput::Home,
+            KeyCode::Insert => UniversalInput::Insert,
+            KeyCode::PageDown => UniversalInput::PageDown,
+            KeyCode::PageUp => UniversalInput::PageUp,
+            KeyCode::ArrowDown => UniversalInput::ArrowDown,
+            KeyCode::ArrowLeft => UniversalInput::ArrowLeft,
+            KeyCode::ArrowRight => UniversalInput::ArrowRight,
+            KeyCode::ArrowUp => UniversalInput::ArrowUp,
+            KeyCode::NumLock => UniversalInput::NumLock,
+            KeyCode::Numpad0 => UniversalInput::Numpad0,
+            KeyCode::Numpad1 => UniversalInput::Numpad1,
+            KeyCode::Numpad2 => UniversalInput::Numpad2,
+            KeyCode::Numpad3 => UniversalInput::Numpad3,
+            KeyCode::Numpad4 => UniversalInput::Numpad4,
+            KeyCode::Numpad5 => UniversalInput::Numpad5,
+            KeyCode::Numpad6 => UniversalInput::Numpad6,
+            KeyCode::Numpad7 => UniversalInput::Numpad7,
+            KeyCode::Numpad8 => UniversalInput::Numpad8,
+            KeyCode::Numpad9 => UniversalInput::Numpad9,
+            KeyCode::NumpadAdd => UniversalInput::NumpadAdd,
+            KeyCode::NumpadBackspace => UniversalInput::NumpadBackspace,
+            KeyCode::NumpadClear => UniversalInput::NumpadClear,
+            KeyCode::NumpadClearEntry => UniversalInput::NumpadClearEntry,
+            KeyCode::NumpadComma => UniversalInput::NumpadComma,
+            KeyCode::NumpadDecimal => UniversalInput::NumpadDecimal,
+            KeyCode::NumpadDivide => UniversalInput::NumpadDivide,
+            KeyCode::NumpadEnter => UniversalInput::NumpadEnter,
+            KeyCode::NumpadEqual => UniversalInput::NumpadEqual,
+            KeyCode::NumpadHash => UniversalInput::NumpadHash,
+            KeyCode::NumpadMemoryAdd => UniversalInput::NumpadMemoryAdd,
+            KeyCode::NumpadMemoryClear => UniversalInput::NumpadMemoryClear,
+            KeyCode::NumpadMemoryRecall => UniversalInput::NumpadMemoryRecall,
+            KeyCode::NumpadMemoryStore => UniversalInput::NumpadMemoryStore,
+            KeyCode::NumpadMemorySubtract => UniversalInput::NumpadMemorySubtract,
+            KeyCode::NumpadMultiply => UniversalInput::NumpadMultiply,
+            KeyCode::NumpadParenLeft => UniversalInput::NumpadParenLeft,
+            KeyCode::NumpadParenRight => UniversalInput::NumpadParenRight,
+            KeyCode::NumpadStar => UniversalInput::NumpadStar,
+            KeyCode::NumpadSubtract => UniversalInput::NumpadSubtract,
+            KeyCode::Escape => UniversalInput::Escape,
+            KeyCode::Fn => UniversalInput::Fn,
+            KeyCode::FnLock => UniversalInput::FnLock,
+            KeyCode::PrintScreen => UniversalInput::PrintScreen,
+            KeyCode::ScrollLock => UniversalInput::ScrollLock,
+            KeyCode::Pause => UniversalInput::Pause,
+            KeyCode::BrowserBack => UniversalInput::BrowserBack,
+            KeyCode::BrowserFavorites => UniversalInput::BrowserFavorites,
+            KeyCode::BrowserForward => UniversalInput::BrowserForward,
+            KeyCode::BrowserHome => UniversalInput::BrowserHome,
+            KeyCode::BrowserRefresh => UniversalInput::BrowserRefresh,
+            KeyCode::BrowserSearch => UniversalInput::BrowserSearch,
+            KeyCode::BrowserStop => UniversalInput::BrowserStop,
+            KeyCode::Eject => UniversalInput::Eject,
+            KeyCode::LaunchApp1 => UniversalInput::LaunchApp1,
+            KeyCode::LaunchApp2 => UniversalInput::LaunchApp2,
+            KeyCode::LaunchMail => UniversalInput::LaunchMail,
+            KeyCode::MediaPlayPause => UniversalInput::MediaPlayPause,
+            KeyCode::MediaSelect => UniversalInput::MediaSelect,
+            KeyCode::MediaStop => UniversalInput::MediaStop,
+            KeyCode::MediaTrackNext => UniversalInput::MediaTrackNext,
+            KeyCode::MediaTrackPrevious => UniversalInput::MediaTrackPrevious,
+            KeyCode::Power => UniversalInput::Power,
+            KeyCode::Sleep => UniversalInput::Sleep,
+            KeyCode::AudioVolumeDown => UniversalInput::AudioVolumeDown,
+            KeyCode::AudioVolumeMute => UniversalInput::AudioVolumeMute,
+            KeyCode::AudioVolumeUp => UniversalInput::AudioVolumeUp,
+            KeyCode::WakeUp => UniversalInput::WakeUp,
+            KeyCode::Meta => UniversalInput::Meta,
+            KeyCode::Hyper => UniversalInput::Hyper,
+            KeyCode::Turbo => UniversalInput::Turbo,
+            KeyCode::Abort => UniversalInput::Abort,
+            KeyCode::Resume => UniversalInput::Resume,
+            KeyCode::Suspend => UniversalInput::Suspend,
+            KeyCode::Again => UniversalInput::Again,
+            KeyCode::Copy => UniversalInput::Copy,
+            KeyCode::Cut => UniversalInput::Cut,
+            KeyCode::Find => UniversalInput::Find,
+            KeyCode::Open => UniversalInput::Open,
+            KeyCode::Paste => UniversalInput::Paste,
+            KeyCode::Props => UniversalInput::Props,
+            KeyCode::Select => UniversalInput::Select,
+            KeyCode::Undo => UniversalInput::Undo,
+            KeyCode::Hiragana => UniversalInput::Hiragana,
+            KeyCode::Katakana => UniversalInput::Katakana,
+            KeyCode::F1 => UniversalInput::F1,
+            KeyCode::F2 => UniversalInput::F2,
+            KeyCode::F3 => UniversalInput::F3,
+            KeyCode::F4 => UniversalInput::F4,
+            KeyCode::F5 => UniversalInput::F5,
+            KeyCode::F6 => UniversalInput::F6,
+            KeyCode::F7 => UniversalInput::F7,
+            KeyCode::F8 => UniversalInput::F8,
+            KeyCode::F9 => UniversalInput::F9,
+            KeyCode::F10 => UniversalInput::F10,
+            KeyCode::F11 => UniversalInput::F11,
+            KeyCode::F12 => UniversalInput::F12,
+            KeyCode::F13 => UniversalInput::F13,
+            KeyCode::F14 => UniversalInput::F14,
+            KeyCode::F15 => UniversalInput::F15,
+            KeyCode::F16 => UniversalInput::F16,
+            KeyCode::F17 => UniversalInput::F17,
+            KeyCode::F18 => UniversalInput::F18,
+            KeyCode::F19 => UniversalInput::F19,
+            KeyCode::F20 => UniversalInput::F20,
+            KeyCode::F21 => UniversalInput::F21,
+            KeyCode::F22 => UniversalInput::F22,
+            KeyCode::F23 => UniversalInput::F23,
+            KeyCode::F24 => UniversalInput::F24,
+            KeyCode::F25 => UniversalInput::F25,
+            KeyCode::F26 => UniversalInput::F26,
+            KeyCode::F27 => UniversalInput::F27,
+            KeyCode::F28 => UniversalInput::F28,
+            KeyCode::F29 => UniversalInput::F29,
+            KeyCode::F30 => UniversalInput::F30,
+            KeyCode::F31 => UniversalInput::F31,
+            KeyCode::F32 => UniversalInput::F32,
+            KeyCode::F33 => UniversalInput::F33,
+            KeyCode::F34 => UniversalInput::F34,
+            KeyCode::F35 => UniversalInput::F35,
+        }
     }
 }
 
@@ -632,6 +920,8 @@ impl From<MouseButton> for UniversalInput {
             MouseButton::Left => UniversalInput::MouseLeft,
             MouseButton::Right => UniversalInput::MouseRight,
             MouseButton::Middle => UniversalInput::MouseMiddle,
+            MouseButton::Back => UniversalInput::MouseBack,
+            MouseButton::Forward => UniversalInput::MouseForward,
             MouseButton::Other(id) => UniversalInput::MouseOther(id),
         }
     }

@@ -1,5 +1,5 @@
 use crate::action_input::ActionInput;
-use bevy_ecs::system::Resource;
+use bevy::ecs::system::Resource;
 use std::collections::HashMap;
 
 /// Helper function to be enable local multiplayer
@@ -97,10 +97,10 @@ impl MultiInput {
 ///         inputs,
 ///         schemes,
 ///         (
-///             ("A", KeyCode::A),
+///             ("A", KeyCode::KeyA),
 ///         ),
 ///         (
-///             ("Left", KeyCode::Left),
+///             ("Left", KeyCode::ArrowLeft),
 ///         )
 ///     )
 /// }
@@ -139,11 +139,11 @@ fn test_make_multi_input() {
     let mut ms = MultiScheme::default();
     let mut ms_t = MultiScheme::default();
 
-    ms.insert(0, make_controls!(("A", KeyCode::A), ("W", KeyCode::W),));
+    ms.insert(0, make_controls!(("A", KeyCode::KeyA), ("W", KeyCode::KeyW),));
 
     ms.insert(
         1,
-        make_controls!(("Up", KeyCode::Up), ("Down", KeyCode::Down),),
+        make_controls!(("Up", KeyCode::ArrowUp), ("Down", KeyCode::ArrowDown),),
     );
 
     mi.has_players(2);
@@ -151,8 +151,8 @@ fn test_make_multi_input() {
     make_multi_input!(
         mi_t,
         ms_t,
-        (("A", KeyCode::A), ("W", KeyCode::W),),
-        (("Up", KeyCode::Up), ("Down", KeyCode::Down),)
+        (("A", KeyCode::KeyA), ("W", KeyCode::KeyW),),
+        (("Up", KeyCode::ArrowUp), ("Down", KeyCode::ArrowDown),)
     );
 
     assert_eq!(mi, mi_t);
