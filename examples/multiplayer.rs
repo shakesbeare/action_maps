@@ -1,6 +1,5 @@
 extern crate bevy;
 
-use action_maps::get_scan_code;
 use action_maps::multiplayer_prelude::*;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
@@ -49,16 +48,16 @@ fn setup(
         inputs,
         control_schemes,
         (
-            (Actions::Up, ScanCode(get_scan_code("W").unwrap())),
-            (Actions::Left, ScanCode(get_scan_code("A").unwrap())),
-            (Actions::Down, ScanCode(get_scan_code("S").unwrap())),
-            (Actions::Right, ScanCode(get_scan_code("D").unwrap())),
+            (Actions::Up, KeyCode::KeyW),
+            (Actions::Left, KeyCode::KeyA),
+            (Actions::Down, KeyCode::KeyS),
+            (Actions::Right, KeyCode::KeyD),
         ),
         (
-            (Actions::Up, ScanCode(get_scan_code("Up").unwrap())),
-            (Actions::Left, ScanCode(get_scan_code("Left").unwrap())),
-            (Actions::Down, ScanCode(get_scan_code("Down").unwrap())),
-            (Actions::Right, ScanCode(get_scan_code("Right").unwrap())),
+            (Actions::Up, KeyCode::ArrowUp),
+            (Actions::Left, KeyCode::ArrowLeft),
+            (Actions::Down, KeyCode::ArrowDown),
+            (Actions::Right, KeyCode::ArrowRight),
         )
     );
 

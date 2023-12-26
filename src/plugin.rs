@@ -1,5 +1,5 @@
-use bevy_app::{App, Plugin, PreUpdate};
-use bevy_ecs::schedule::{IntoSystemConfigs, IntoSystemSetConfigs, SystemSet};
+use bevy::app::{App, Plugin, PreUpdate};
+use bevy::ecs::schedule::{IntoSystemConfigs, IntoSystemSetConfigs, SystemSet};
 
 use crate::action_input::ActionInput;
 use crate::{
@@ -42,11 +42,11 @@ impl Plugin for ActionMapPlugin {
         )
         .init_resource::<ControlScheme>()
         .init_resource::<ActionInput>()
-        .init_resource::<bevy_input::gamepad::GamepadSettings>()
-        .add_event::<bevy_input::keyboard::KeyboardInput>()
-        .add_event::<bevy_input::gamepad::GamepadButtonChangedEvent>()
-        .add_event::<bevy_input::gamepad::GamepadButtonInput>()
-        .add_event::<bevy_input::mouse::MouseButtonInput>()
+        .init_resource::<bevy::input::gamepad::GamepadSettings>()
+        .add_event::<bevy::input::keyboard::KeyboardInput>()
+        .add_event::<bevy::input::gamepad::GamepadButtonChangedEvent>()
+        .add_event::<bevy::input::gamepad::GamepadButtonInput>()
+        .add_event::<bevy::input::mouse::MouseButtonInput>()
         .add_systems(
             PreUpdate,
             (crate::input::universal_input_system).in_set(ActionMapSet::ReadEvents),
@@ -64,11 +64,11 @@ impl Plugin for MultiActionMapPlugin {
         )
         .init_resource::<MultiScheme>()
         .init_resource::<MultiInput>()
-        .init_resource::<bevy_input::gamepad::GamepadSettings>()
-        .add_event::<bevy_input::keyboard::KeyboardInput>()
-        .add_event::<bevy_input::gamepad::GamepadButtonChangedEvent>()
-        .add_event::<bevy_input::gamepad::GamepadButtonInput>()
-        .add_event::<bevy_input::mouse::MouseButtonInput>()
+        .init_resource::<bevy::input::gamepad::GamepadSettings>()
+        .add_event::<bevy::input::keyboard::KeyboardInput>()
+        .add_event::<bevy::input::gamepad::GamepadButtonChangedEvent>()
+        .add_event::<bevy::input::gamepad::GamepadButtonInput>()
+        .add_event::<bevy::input::mouse::MouseButtonInput>()
         .add_systems(
             PreUpdate,
             (crate::input::multi_universal_input_system)

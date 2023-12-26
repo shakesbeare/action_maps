@@ -1,4 +1,4 @@
-use bevy_ecs::system::Resource;
+use bevy::prelude::Resource;
 use std::collections::HashMap;
 
 use crate::action::Action;
@@ -9,11 +9,9 @@ use crate::input::UniversalInput;
 /// ```
 /// use bevy::prelude::*;
 /// use action_maps::prelude::*;
-/// use action_maps::get_scan_code;
 ///
 /// fn bind_keys(mut control_scheme: ResMut<ControlScheme>) {
-///    control_scheme.insert("Up", ScanCode(get_scan_code("W").unwrap()));
-///    control_scheme.insert("Left", KeyCode::A);
+///    control_scheme.insert("Left", KeyCode::KeyA);
 ///    control_scheme.insert("Shoot", MouseButton::Left);
 /// }
 /// ```
@@ -82,12 +80,12 @@ impl ControlScheme {
 /// use bevy::prelude::*;
 ///
 /// let mut control_scheme = ControlScheme::default();
-/// control_scheme.insert("A", KeyCode::A);
-/// control_scheme.insert("W", KeyCode::W);
+/// control_scheme.insert("A", KeyCode::KeyA);
+/// control_scheme.insert("W", KeyCode::KeyW);
 ///
 /// let with_macro = make_controls!(
-///     ("A", KeyCode::A),
-///     ("W", KeyCode::W),
+///     ("A", KeyCode::KeyA),
+///     ("W", KeyCode::KeyW),
 /// );
 ///
 /// assert_eq!(control_scheme, with_macro);
@@ -112,10 +110,10 @@ fn test_make_controls() {
     let mut cs = ControlScheme::default();
     let mut cs_t = ControlScheme::default();
 
-    cs.insert("A", KeyCode::A);
-    cs.insert("W", KeyCode::W);
+    cs.insert("A", KeyCode::KeyA);
+    cs.insert("W", KeyCode::KeyW);
 
-    cs_t.set(make_controls!(("A", KeyCode::A), ("W", KeyCode::W)));
+    cs_t.set(make_controls!(("A", KeyCode::KeyA), ("W", KeyCode::KeyW)));
 
     assert_eq!(cs, cs_t);
 }

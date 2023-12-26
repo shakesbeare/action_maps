@@ -1,6 +1,5 @@
 extern crate bevy;
 
-use action_maps::get_scan_code;
 use action_maps::prelude::*;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
@@ -50,10 +49,10 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     control_scheme.set(make_controls!(
-        (Actions::Up, ScanCode(get_scan_code("W").unwrap())),
-        (Actions::Left, ScanCode(get_scan_code("A").unwrap())),
-        (Actions::Down, ScanCode(get_scan_code("S").unwrap())),
-        (Actions::Right, ScanCode(get_scan_code("D").unwrap())),
+        (Actions::Up, KeyCode::KeyW),
+        (Actions::Left, KeyCode::KeyA),
+        (Actions::Down, KeyCode::KeyS),
+        (Actions::Right, KeyCode::KeyD),
         (Actions::ChangeColor, MouseButton::Left)
     ));
 

@@ -1,11 +1,10 @@
 use crate::control_scheme::ControlScheme;
-use bevy_ecs::system::Resource;
+use bevy::ecs::system::Resource;
 use std::collections::HashMap;
 
 /// Helper type to be used for local multiplayer
 /// ```rust
 /// use action_maps::multiplayer_prelude::*;
-/// use action_maps::get_scan_code;
 /// use action_maps::make_controls;
 /// use bevy::prelude::*;
 ///
@@ -30,10 +29,10 @@ use std::collections::HashMap;
 ///
 /// fn bind_keys(mut controls: ResMut<MultiScheme>) {
 ///     let wasd = make_controls!(
-///         (Actions::Up, KeyCode::W),
-///         (Actions::Left, KeyCode::A),
-///         (Actions::Down, KeyCode::S),
-///         (Actions::Right, KeyCode::D),
+///         (Actions::Up, KeyCode::KeyW),
+///         (Actions::Left, KeyCode::KeyA),
+///         (Actions::Down, KeyCode::KeyS),
+///         (Actions::Right, KeyCode::KeyD),
 ///    );
 ///    controls.insert(0 /* player id */, wasd);
 /// }

@@ -1,6 +1,6 @@
 use action_maps::prelude::*;
 use bevy::prelude::*;
-use bevy_input::{keyboard::KeyboardInput, ButtonState};
+use bevy::input::{keyboard::KeyboardInput, ButtonState};
 
 #[test]
 fn resource_responds_to_update() {
@@ -20,20 +20,18 @@ fn resource_responds_to_update() {
         (action_maps::input::universal_input_system).in_set(ActionMapSet::ReadEvents),
     );
     let press_key = KeyboardInput {
-        scan_code: 0x01,
-        key_code: None,
+        key_code: KeyCode::KeyA,
         state: ButtonState::Pressed,
-        window: bevy_ecs::entity::Entity::from_raw(0),
+        window: bevy::ecs::entity::Entity::from_raw(0),
     };
     let release_key = KeyboardInput {
-        scan_code: 0x01,
-        key_code: None,
+        key_code: KeyCode::KeyA,
         state: ButtonState::Released,
-        window: bevy_ecs::entity::Entity::from_raw(0),
+        window: bevy::ecs::entity::Entity::from_raw(0),
     };
 
     let mut cs = ControlScheme::default();
-    cs.insert("A", ScanCode(0x01));
+    cs.insert("A", KeyCode::KeyA);
     app.insert_resource(cs);
     app.insert_resource(ActionInput::default());
     app.update();
