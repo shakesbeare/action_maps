@@ -1,4 +1,4 @@
-use action_maps::{get_scan_code, multiplayer_prelude::*};
+use action_maps::multiplayer_prelude::*;
 use bevy::prelude::*;
 use bevy_input::{keyboard::KeyboardInput, ButtonState};
 
@@ -27,20 +27,20 @@ fn multi_resource_responds_to_update() {
     app.insert_resource(Input::<MouseButton>::default());
 
     let press_a = KeyboardInput {
-        scan_code: get_scan_code("A").unwrap(),
-        key_code: Some(KeyCode::A),
+        scan_code: 0x01,
+        key_code: None,
         state: ButtonState::Pressed,
         window: bevy_ecs::entity::Entity::from_raw(0),
     };
     let release_a = KeyboardInput {
-        scan_code: get_scan_code("A").unwrap(),
-        key_code: Some(KeyCode::A),
+        scan_code: 0x01,
+        key_code: None,
         state: ButtonState::Released,
         window: bevy_ecs::entity::Entity::from_raw(0),
     };
     let press_left = KeyboardInput {
-        scan_code: get_scan_code("Left").unwrap(),
-        key_code: Some(KeyCode::A),
+        scan_code: 0x02,
+        key_code: None,
         state: ButtonState::Pressed,
         window: bevy_ecs::entity::Entity::from_raw(0),
     };
@@ -48,7 +48,12 @@ fn multi_resource_responds_to_update() {
     let mut mi = MultiInput::default();
     let mut ms = MultiScheme::default();
 
-    make_multi_input!(mi, ms, (("Left", KeyCode::A),), (("Left", KeyCode::Left),));
+    make_multi_input!(
+        mi,
+        ms,
+        (("Left", ScanCode(0x01)),),
+        (("Left", ScanCode(0x02)),)
+    );
 
     app.insert_resource(mi);
     app.insert_resource(ms);
