@@ -1,4 +1,4 @@
-use action_maps::{get_scan_code, multiplayer_prelude::*};
+use action_maps::multiplayer_prelude::*;
 use bevy::prelude::*;
 use bevy_input::{keyboard::KeyboardInput, ButtonState};
 
@@ -27,20 +27,20 @@ fn multi_resource_responds_to_update() {
     app.insert_resource(Input::<MouseButton>::default());
 
     let press_a = KeyboardInput {
-        scan_code: get_scan_code("A").unwrap(),
-        key_code: Some(KeyCode::A),
+        scan_code: 0x01,
+        key_code: None,
         state: ButtonState::Pressed,
         window: bevy_ecs::entity::Entity::from_raw(0),
     };
     let release_a = KeyboardInput {
-        scan_code: get_scan_code("A").unwrap(),
-        key_code: Some(KeyCode::A),
+        scan_code: 0x01,
+        key_code: None,
         state: ButtonState::Released,
         window: bevy_ecs::entity::Entity::from_raw(0),
     };
     let press_left = KeyboardInput {
-        scan_code: get_scan_code("Left").unwrap(),
-        key_code: Some(KeyCode::A),
+        scan_code: 0xFF,
+        key_code: None,
         state: ButtonState::Pressed,
         window: bevy_ecs::entity::Entity::from_raw(0),
     };
@@ -48,7 +48,12 @@ fn multi_resource_responds_to_update() {
     let mut mi = MultiInput::default();
     let mut ms = MultiScheme::default();
 
-    make_multi_input!(mi, ms, (("Left", KeyCode::A),), (("Left", KeyCode::Left),));
+    make_multi_input!(
+        mi,
+        ms,
+        (("Left", ScanCode(0x01)),),
+        (("LeftArrow", ScanCode(0xFF)),)
+    );
 
     app.insert_resource(mi);
     app.insert_resource(ms);
@@ -60,7 +65,7 @@ fn multi_resource_responds_to_update() {
     app.update();
     let mi = app.world.resource_mut::<MultiInput>();
     assert!(mi.get(0).unwrap().pressed("Left"));
-    assert!(!mi.get(1).unwrap().pressed("Left"));
+    assert!(!mi.get(1).unwrap().pressed("LeftArrow"));
 
     app.world
         .resource_mut::<Events<KeyboardInput>>()
@@ -72,5 +77,5 @@ fn multi_resource_responds_to_update() {
 
     let mi = app.world.resource_mut::<MultiInput>();
     assert!(!mi.get(0).unwrap().pressed("Left"));
-    assert!(mi.get(1).unwrap().pressed("Left"));
+    assert!(mi.get(1).unwrap().pressed("LeftArrow"));
 }
