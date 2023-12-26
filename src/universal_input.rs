@@ -1,66 +1,157 @@
+use bevy_ecs::change_detection::DetectChangesMut;
+use bevy_ecs::event::Event;
+use bevy_ecs::event::EventReader;
+use bevy_ecs::event::EventWriter;
+use bevy_ecs::system::Res;
+use bevy_ecs::system::ResMut;
 use bevy_input::gamepad::GamepadButton;
 use bevy_input::gamepad::GamepadButtonChangedEvent;
+use bevy_input::gamepad::GamepadButtonInput;
+use bevy_input::gamepad::GamepadButtonType;
+use bevy_input::gamepad::GamepadSettings;
 use bevy_input::keyboard::KeyCode;
 use bevy_input::keyboard::KeyboardInput;
 use bevy_input::keyboard::ScanCode;
 use bevy_input::mouse::MouseButton;
-use bevy_ecs::event::Event;
-use bevy_ecs::event::EventReader;
 use bevy_input::mouse::MouseButtonInput;
+use bevy_input::ButtonState;
+use bevy_log::warn;
+use bevy_reflect::Enum;
+
+use crate::actions::MultiInput;
+use crate::controls::MultiScheme;
+use crate::get_key;
+use crate::get_scan_code;
+use crate::prelude::ActionInput;
+use crate::prelude::ControlScheme;
 
 pub fn universal_input_system(
-    keyboard_events: EventReader<KeyboardInput>,
-    gamepad_events: EventReader<GamepadButtonChangedEvent>,
-    mouse_button_events: EventReader<MouseButtonInput>,
+    mut keyboard_events: EventReader<KeyboardInput>,
+    mut gamepad_events: EventReader<GamepadButtonChangedEvent>,
+    mut button_input_events: EventWriter<GamepadButtonInput>,
+    mut mouse_button_events: EventReader<MouseButtonInput>,
+    mut action_input: ResMut<ActionInput>,
+    control_scheme: Res<ControlScheme>,
+    settings: Res<GamepadSettings>,
 ) {
+    action_input.bypass_change_detection().clear();
+    let keyboard_events: Vec<&KeyboardInput> = keyboard_events.read().collect();
+    let gamepad_events: Vec<&GamepadButtonChangedEvent> =
+        gamepad_events.read().collect();
+    let mouse_button_events: Vec<&MouseButtonInput> =
+        mouse_button_events.read().collect();
+    update_inputs(
+        &keyboard_events,
+        &gamepad_events,
+        &mut button_input_events,
+        &mouse_button_events,
+        &mut action_input,
+        &control_scheme,
+        &settings,
+    );
+}
 
+pub fn multi_universal_input_system(
+    mut keyboard_events: EventReader<KeyboardInput>,
+    mut gamepad_events: EventReader<GamepadButtonChangedEvent>,
+    mut button_input_writer: EventWriter<GamepadButtonInput>,
+    mut mouse_button_events: EventReader<MouseButtonInput>,
+    mut multi_input: ResMut<MultiInput>,
+    multi_scheme: Res<MultiScheme>,
+    settings: Res<GamepadSettings>,
+) {
+    multi_input.bypass_change_detection();
+    let keyboard_events: Vec<&KeyboardInput> = keyboard_events.read().collect();
+    let gamepad_events: Vec<&GamepadButtonChangedEvent> =
+        gamepad_events.read().collect();
+    let mouse_button_events: Vec<&MouseButtonInput> =
+        mouse_button_events.read().collect();
+
+    for i in 0..multi_input.keys().len() {
+        let action_input = multi_input.get_mut(i).unwrap();
+        let control_scheme = multi_scheme.get(i).unwrap();
+        action_input.clear();
+        update_inputs(
+            &keyboard_events,
+            &gamepad_events,
+            &mut button_input_writer,
+            &mouse_button_events,
+            action_input,
+            control_scheme,
+            &settings,
+        );
+    }
+}
+
+fn update_inputs(
+    keyboard_events: &Vec<&KeyboardInput>,
+    gamepad_events: &Vec<&GamepadButtonChangedEvent>,
+    button_input_events: &mut EventWriter<GamepadButtonInput>,
+    mouse_button_events: &Vec<&MouseButtonInput>,
+    action_input: &mut ActionInput,
+    control_scheme: &ControlScheme,
+    settings: &Res<GamepadSettings>,
+) {
+    for event in keyboard_events {
+        let KeyboardInput {
+            scan_code, state, ..
+        } = event;
+
+        let key: UniversalInput = ScanCode(*scan_code).into();
+        if let Some(action) = control_scheme.get(key) {
+            match state {
+                ButtonState::Pressed => action_input.press(*action),
+                ButtonState::Released => action_input.release(*action),
+            }
+        }
+    }
+
+    for event in gamepad_events {
+        let button = GamepadButton::new(event.gamepad, event.button_type);
+        let value = event.value;
+        let button_settings = settings.get_button_settings(button);
+        let input: UniversalInput = button.into();
+        let Some(action) = control_scheme.get(input) else {
+            return;
+        };
+
+        // if is released...
+        if value <= button_settings.release_threshold() {
+            if action_input.pressed(*action) {
+                button_input_events.send(GamepadButtonInput {
+                    button,
+                    state: ButtonState::Released,
+                });
+            }
+            action_input.release(*action);
+        } else if value >= button_settings.press_threshold() {
+            button_input_events.send(GamepadButtonInput {
+                button,
+                state: ButtonState::Pressed,
+            });
+            action_input.press(*action);
+        }
+    }
+
+    for event in mouse_button_events {
+        let button: UniversalInput = event.button.into();
+
+        if let Some(action) = control_scheme.get(button) {
+            match event.state {
+                ButtonState::Pressed => action_input.press(*action),
+                ButtonState::Released => action_input.release(*action),
+            }
+        }
+    }
 }
 
 #[derive(Event)]
 pub struct UniversalInputEvent(UniversalInput);
 
-/// Represents a type of input that can be mapped to an action.
-/// Allows control schemes to be more generic
-#[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
-pub enum UniversalInput {
-    Keyboard(Key),
-    MouseButton(MouseButton),
-    GamepadButton(GamepadButton),
-}
-
-#[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
-pub enum Key {
-    KeyCode(KeyCode),
-    ScanCode(ScanCode),
-}
-
-impl From<KeyCode> for UniversalInput {
-    fn from(key_code: KeyCode) -> Self {
-        UniversalInput::Keyboard(Key::KeyCode(key_code))
-    }
-}
-
-impl From<ScanCode> for UniversalInput {
-    fn from(scan_code: ScanCode) -> Self {
-        UniversalInput::Keyboard(Key::ScanCode(scan_code))
-    }
-}
-
-impl From<GamepadButton> for UniversalInput {
-    fn from(gamepad_button: GamepadButton) -> Self {
-        UniversalInput::GamepadButton(gamepad_button)
-    }
-}
-
-impl From<MouseButton> for UniversalInput {
-    fn from(mouse_button: MouseButton) -> Self {
-        UniversalInput::MouseButton(mouse_button)
-    }
-}
-
 /// Keys represent the physical key
 #[repr(u32)]
-pub enum New {
+#[derive(Hash, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub enum UniversalInput {
     /// The `1` key over the letters.
     Key1,
     /// The `2` key over the letters.
@@ -415,50 +506,50 @@ pub enum New {
     Cut,
 
     /// The bottom action button of the action pad (i.e. PS: Cross, Xbox: A).
-    GamepadSouth,
+    GamepadSouth(usize),
     /// The right action button of the action pad (i.e. PS: Circle, Xbox: B).
-    GamepadEast,
+    GamepadEast(usize),
     /// The upper action button of the action pad (i.e. PS: Triangle, Xbox: Y).
-    GamepadNorth,
+    GamepadNorth(usize),
     /// The left action button of the action pad (i.e. PS: Square, Xbox: X).
-    GamepadWest,
+    GamepadWest(usize),
 
     /// The C button.
-    GamepadC,
+    GamepadC(usize),
     /// The Z button.
-    GamepadZ,
+    GamepadZ(usize),
 
     /// The first left trigger.
-    GamepadLeftTrigger,
+    GamepadLeftTrigger(usize),
     /// The second left trigger.
-    GamepadLeftTrigger2,
+    GamepadLeftTrigger2(usize),
     /// The first right trigger.
-    GamepadRightTrigger,
+    GamepadRightTrigger(usize),
     /// The second right trigger.
-    GamepadRightTrigger2,
+    GamepadRightTrigger2(usize),
     /// The select button.
-    GamepadSelect,
+    GamepadSelect(usize),
     /// The start button.
-    GamepadStart,
+    GamepadStart(usize),
     /// The mode button.
-    GamepadMode,
+    GamepadMode(usize),
 
     /// The left thumb stick button.
-    GamepadLeftThumb,
+    GamepadLeftThumb(usize),
     /// The right thumb stick button.
-    GamepadRightThumb,
+    GamepadRightThumb(usize),
 
     /// The up button of the D-Pad.
-    GamepadDPadUp,
+    GamepadDPadUp(usize),
     /// The down button of the D-Pad.
-    GamepadDPadDown,
+    GamepadDPadDown(usize),
     /// The left button of the D-Pad.
-    GamepadDPadLeft,
+    GamepadDPadLeft(usize),
     /// The right button of the D-Pad.
-    GamepadDPadRight,
+    GamepadDPadRight(usize),
 
     /// Miscellaneous buttons, considered non-standard (i.e. Extra buttons on a flight stick that do not have a gamepad equivalent).
-    GamepadOther(u8),
+    GamepadOther(u8, usize),
 
     /// The left mouse button.
     MouseLeft,
@@ -468,4 +559,80 @@ pub enum New {
     MouseMiddle,
     /// Another mouse button with the associated number.
     MouseOther(u16),
+
+    /// Represents an input button that is not accessible
+    /// Most often occurs when there was an error converting to a UniversalInput
+    Null,
+}
+
+impl From<KeyCode> for UniversalInput {
+    fn from(value: KeyCode) -> Self {
+        // Key names are named exactly as they're key code.
+        // Must first convert to physical key location
+        let key_str = value.variant_name();
+        let Ok(scan_code) = get_scan_code(key_str) else {
+            warn!("Error KeyCode -> UniversalInput");
+            return UniversalInput::Null;
+        };
+        let Ok(scan_code) = get_key(scan_code) else {
+            warn!("Error KeyCode -> UniversalInput");
+            return UniversalInput::Null;
+        };
+
+        scan_code
+    }
+}
+
+impl From<ScanCode> for UniversalInput {
+    fn from(value: ScanCode) -> Self {
+        let Ok(scan_code) = get_key(value.0) else {
+            warn!("Error ScanCode -> UniversalInput");
+            return UniversalInput::Null;
+        };
+
+        scan_code
+    }
+}
+
+impl From<GamepadButton> for UniversalInput {
+    fn from(value: GamepadButton) -> Self {
+        let button_type = value.button_type;
+        let id = value.gamepad.id;
+
+        match button_type {
+            GamepadButtonType::South => UniversalInput::GamepadSouth(id),
+            GamepadButtonType::East => UniversalInput::GamepadEast(id),
+            GamepadButtonType::North => UniversalInput::GamepadNorth(id),
+            GamepadButtonType::West => UniversalInput::GamepadWest(id),
+            GamepadButtonType::C => UniversalInput::GamepadC(id),
+            GamepadButtonType::Z => UniversalInput::GamepadZ(id),
+            GamepadButtonType::LeftTrigger => UniversalInput::GamepadLeftTrigger(id),
+            GamepadButtonType::LeftTrigger2 => UniversalInput::GamepadLeftTrigger2(id),
+            GamepadButtonType::RightTrigger => UniversalInput::GamepadRightTrigger(id),
+            GamepadButtonType::RightTrigger2 => {
+                UniversalInput::GamepadRightTrigger2(id)
+            }
+            GamepadButtonType::Select => UniversalInput::GamepadSelect(id),
+            GamepadButtonType::Start => UniversalInput::GamepadStart(id),
+            GamepadButtonType::Mode => UniversalInput::GamepadMode(id),
+            GamepadButtonType::LeftThumb => UniversalInput::GamepadLeftThumb(id),
+            GamepadButtonType::RightThumb => UniversalInput::GamepadRightThumb(id),
+            GamepadButtonType::DPadUp => UniversalInput::GamepadDPadUp(id),
+            GamepadButtonType::DPadDown => UniversalInput::GamepadDPadDown(id),
+            GamepadButtonType::DPadLeft => UniversalInput::GamepadDPadLeft(id),
+            GamepadButtonType::DPadRight => UniversalInput::GamepadDPadRight(id),
+            GamepadButtonType::Other(c) => UniversalInput::GamepadOther(c, id),
+        }
+    }
+}
+
+impl From<MouseButton> for UniversalInput {
+    fn from(value: MouseButton) -> Self {
+        match value {
+            MouseButton::Left => UniversalInput::MouseLeft,
+            MouseButton::Right => UniversalInput::MouseRight,
+            MouseButton::Middle => UniversalInput::MouseMiddle,
+            MouseButton::Other(id) => UniversalInput::MouseOther(id),
+        }
+    }
 }

@@ -1,5 +1,16 @@
-use action_maps::prelude::*;
+use action_maps::{get_scan_code, prelude::*};
 use bevy::prelude::*;
+use bevy_input::{keyboard::KeyboardInput, ButtonState};
+
+/*
+    mut keyboard_events: EventReader<KeyboardInput>,
+    mut gamepad_events: EventReader<GamepadButtonChangedEvent>,
+    mut button_input_events: EventWriter<GamepadButtonInput>,
+    mut mouse_button_events: EventReader<MouseButtonInput>,
+    mut action_input: ResMut<ActionInput>,
+    control_scheme: Res<ControlScheme>,
+    settings: Res<GamepadSettings>,
+*/
 
 #[test]
 fn resource_responds_to_update() {
@@ -9,27 +20,40 @@ fn resource_responds_to_update() {
         PreUpdate,
         ActionMapSet::HandleActions.after(ActionMapSet::ReadEvents),
     )
+    .add_event::<bevy::input::keyboard::KeyboardInput>()
+    .add_event::<bevy::input::gamepad::GamepadButtonChangedEvent>()
+    .add_event::<bevy::input::gamepad::GamepadButtonInput>()
+    .add_event::<bevy::input::mouse::MouseButtonInput>()
+    .insert_resource(bevy::input::gamepad::GamepadSettings::default())
     .add_systems(
         PreUpdate,
-        (action_maps::action_input_system).in_set(ActionMapSet::ReadEvents),
+        (action_maps::input::universal_input_system).in_set(ActionMapSet::ReadEvents),
     );
-
-    app.insert_resource(Input::<KeyCode>::default());
-    app.insert_resource(Input::<ScanCode>::default());
-    app.insert_resource(Input::<GamepadButton>::default());
-    app.insert_resource(Input::<MouseButton>::default());
+    let press_key = KeyboardInput {
+        scan_code: get_scan_code("A").unwrap(),
+        key_code: Some(KeyCode::A),
+        state: ButtonState::Pressed,
+        window: bevy_ecs::entity::Entity::from_raw(0),
+    };
+    let release_key = KeyboardInput {
+        scan_code: get_scan_code("A").unwrap(),
+        key_code: Some(KeyCode::A),
+        state: ButtonState::Released,
+        window: bevy_ecs::entity::Entity::from_raw(0),
+    };
 
     let mut cs = ControlScheme::default();
     cs.insert("A", KeyCode::A);
-
     app.insert_resource(cs);
     app.insert_resource(ActionInput::default());
     app.update();
 
-    app.world.resource_mut::<Input<KeyCode>>().press(KeyCode::A);
-    app.update(); // expected one frame delay
-
-    let ai = app.world.resource::<ActionInput>();
+    // press key
+    app.world
+        .resource_mut::<Events<KeyboardInput>>()
+        .send(press_key);
+    app.update();
+    let ai = app.world.resource_mut::<ActionInput>();
     assert!(ai.pressed("A"));
     assert!(ai.just_pressed("A"));
     app.update();
@@ -38,8 +62,15 @@ fn resource_responds_to_update() {
     assert!(ai.pressed("A"));
     assert!(!ai.just_pressed("A"));
 
-    app.world.resource_mut::<Input<KeyCode>>().release_all();
-    app.update(); // expected one frame delay
+    // release key
+    app.world
+        .resource_mut::<Events<KeyboardInput>>()
+        .send(release_key);
+    app.update();
+    let ai = app.world.resource_mut::<ActionInput>();
+    assert!(!ai.pressed("A"));
+
+    app.update();
     let ai = app.world.resource::<ActionInput>();
     assert!(!ai.pressed("A"));
 }

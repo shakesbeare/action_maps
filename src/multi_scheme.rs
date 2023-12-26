@@ -53,8 +53,8 @@ impl MultiScheme {
         self.map.get(&id)
     }
 
-    pub fn insert(&mut self, id: usize, action_input: ControlScheme) {
-        self.map.insert(id, action_input);
+    pub fn insert(&mut self, id: usize, control_scheme: ControlScheme) {
+        self.map.insert(id, control_scheme);
     }
 
     pub fn remove(&mut self, id: usize) {

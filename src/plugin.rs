@@ -1,19 +1,7 @@
 use bevy_app::{App, Plugin, PreUpdate};
-use bevy_ecs::{
-    change_detection::DetectChangesMut,
-    schedule::{IntoSystemConfigs, IntoSystemSetConfigs, SystemSet},
-    system::{Res, ResMut},
-};
-use bevy_input::{
-    gamepad::GamepadButton,
-    keyboard::{KeyCode, ScanCode},
-    mouse::MouseButton,
-    Input,
-};
+use bevy_ecs::schedule::{IntoSystemConfigs, IntoSystemSetConfigs, SystemSet};
 
 use crate::action_input::ActionInput;
-use crate::input::Key;
-use crate::input::UniversalInput;
 use crate::{
     control_scheme::ControlScheme, multi_input::MultiInput, multi_scheme::MultiScheme,
 };
@@ -44,111 +32,6 @@ pub enum ActionMapSet {
     HandleActions,
 }
 
-pub fn action_input_system(
-    mut actions: ResMut<ActionInput>,
-    keycodes: Res<Input<KeyCode>>,
-    scancodes: Res<Input<ScanCode>>,
-    mouse_buttons: Res<Input<MouseButton>>,
-    gamepad_buttons: Res<Input<GamepadButton>>,
-    control_scheme: Res<ControlScheme>,
-) {
-    actions.bypass_change_detection().clear();
-    for (action, input) in control_scheme.iter() {
-        match input {
-            UniversalInput::Keyboard(key) => match key {
-                Key::KeyCode(kc) => {
-                    if keycodes.just_pressed(*kc) {
-                        actions.press(*action);
-                    }
-                    if keycodes.just_released(*kc) {
-                        actions.release(*action);
-                    }
-                }
-                Key::ScanCode(sc) => {
-                    if scancodes.just_pressed(*sc) {
-                        actions.press(*action);
-                    }
-                    if scancodes.just_released(*sc) {
-                        actions.release(*action);
-                    }
-                }
-            },
-            UniversalInput::MouseButton(mb) => {
-                if mouse_buttons.just_pressed(*mb) {
-                    actions.press(*action);
-                }
-                if mouse_buttons.just_released(*mb) {
-                    actions.release(*action);
-                }
-            }
-            UniversalInput::GamepadButton(gb) => {
-                if gamepad_buttons.just_pressed(*gb) {
-                    actions.press(*action);
-                }
-                if gamepad_buttons.just_released(*gb) {
-                    actions.release(*action);
-                }
-            }
-        }
-    }
-}
-
-pub fn multi_action_input_system(
-    mut inputs: ResMut<MultiInput>,
-    keycodes: Res<Input<KeyCode>>,
-    scancodes: Res<Input<ScanCode>>,
-    mouse_buttons: Res<Input<MouseButton>>,
-    gamepad_buttons: Res<Input<GamepadButton>>,
-    schemes: Res<MultiScheme>,
-) {
-    inputs.bypass_change_detection();
-    let ids: Vec<usize> = inputs.keys().copied().collect();
-    for i in ids {
-        let actions = inputs.get_mut(i).unwrap();
-        let control_scheme = schemes.get(i).unwrap();
-
-        // (*actions).bypass_change_detection().clear();
-        for (action, input) in control_scheme.iter() {
-            match input {
-                UniversalInput::Keyboard(key) => match key {
-                    Key::KeyCode(kc) => {
-                        if keycodes.just_pressed(*kc) {
-                            actions.press(*action);
-                        }
-                        if keycodes.just_released(*kc) {
-                            actions.release(*action);
-                        }
-                    }
-                    Key::ScanCode(sc) => {
-                        if scancodes.just_pressed(*sc) {
-                            actions.press(*action);
-                        }
-                        if scancodes.just_released(*sc) {
-                            actions.release(*action);
-                        }
-                    }
-                },
-                UniversalInput::MouseButton(mb) => {
-                    if mouse_buttons.just_pressed(*mb) {
-                        actions.press(*action);
-                    }
-                    if mouse_buttons.just_released(*mb) {
-                        actions.release(*action);
-                    }
-                }
-                UniversalInput::GamepadButton(gb) => {
-                    if gamepad_buttons.just_pressed(*gb) {
-                        actions.press(*action);
-                    }
-                    if gamepad_buttons.just_released(*gb) {
-                        actions.release(*action);
-                    }
-                }
-            }
-        }
-    }
-}
-
 pub struct ActionMapPlugin;
 
 impl Plugin for ActionMapPlugin {
@@ -159,9 +42,14 @@ impl Plugin for ActionMapPlugin {
         )
         .init_resource::<ControlScheme>()
         .init_resource::<ActionInput>()
+        .init_resource::<bevy_input::gamepad::GamepadSettings>()
+        .add_event::<bevy_input::keyboard::KeyboardInput>()
+        .add_event::<bevy_input::gamepad::GamepadButtonChangedEvent>()
+        .add_event::<bevy_input::gamepad::GamepadButtonInput>()
+        .add_event::<bevy_input::mouse::MouseButtonInput>()
         .add_systems(
             PreUpdate,
-            (action_input_system).in_set(ActionMapSet::ReadEvents),
+            (crate::input::universal_input_system).in_set(ActionMapSet::ReadEvents),
         );
     }
 }
@@ -176,9 +64,15 @@ impl Plugin for MultiActionMapPlugin {
         )
         .init_resource::<MultiScheme>()
         .init_resource::<MultiInput>()
+        .init_resource::<bevy_input::gamepad::GamepadSettings>()
+        .add_event::<bevy_input::keyboard::KeyboardInput>()
+        .add_event::<bevy_input::gamepad::GamepadButtonChangedEvent>()
+        .add_event::<bevy_input::gamepad::GamepadButtonInput>()
+        .add_event::<bevy_input::mouse::MouseButtonInput>()
         .add_systems(
             PreUpdate,
-            (multi_action_input_system).in_set(ActionMapSet::ReadEvents),
+            (crate::input::multi_universal_input_system)
+                .in_set(ActionMapSet::ReadEvents),
         );
     }
 }

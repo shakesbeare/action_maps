@@ -49,16 +49,16 @@ fn setup(
         inputs,
         control_schemes,
         (
-            (Actions::Up, ScanCode(get_scan_code("W"))),
-            (Actions::Left, ScanCode(get_scan_code("A"))),
-            (Actions::Down, ScanCode(get_scan_code("S"))),
-            (Actions::Right, ScanCode(get_scan_code("D"))),
+            (Actions::Up, ScanCode(get_scan_code("W").unwrap())),
+            (Actions::Left, ScanCode(get_scan_code("A").unwrap())),
+            (Actions::Down, ScanCode(get_scan_code("S").unwrap())),
+            (Actions::Right, ScanCode(get_scan_code("D").unwrap())),
         ),
         (
-            (Actions::Up, ScanCode(get_scan_code("Up"))),
-            (Actions::Left, ScanCode(get_scan_code("Left"))),
-            (Actions::Down, ScanCode(get_scan_code("Down"))),
-            (Actions::Right, ScanCode(get_scan_code("Right"))),
+            (Actions::Up, ScanCode(get_scan_code("Up").unwrap())),
+            (Actions::Left, ScanCode(get_scan_code("Left").unwrap())),
+            (Actions::Down, ScanCode(get_scan_code("Down").unwrap())),
+            (Actions::Right, ScanCode(get_scan_code("Right").unwrap())),
         )
     );
 
