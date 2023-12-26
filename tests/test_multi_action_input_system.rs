@@ -39,7 +39,7 @@ fn multi_resource_responds_to_update() {
         window: bevy_ecs::entity::Entity::from_raw(0),
     };
     let press_left = KeyboardInput {
-        scan_code: 0x02,
+        scan_code: 0xFF,
         key_code: None,
         state: ButtonState::Pressed,
         window: bevy_ecs::entity::Entity::from_raw(0),
@@ -52,7 +52,7 @@ fn multi_resource_responds_to_update() {
         mi,
         ms,
         (("Left", ScanCode(0x01)),),
-        (("LeftArrow", ScanCode(0x02)),)
+        (("LeftArrow", ScanCode(0xFF)),)
     );
 
     app.insert_resource(mi);
