@@ -562,7 +562,7 @@ pub enum UniversalInput {
 
     /// Represents an input button that is not accessible
     /// Most often occurs when there was an error converting to a UniversalInput
-    Null,
+    Unknown(u32),
 }
 
 impl From<KeyCode> for UniversalInput {
@@ -572,11 +572,11 @@ impl From<KeyCode> for UniversalInput {
         let key_str = value.variant_name();
         let Ok(scan_code) = get_scan_code(key_str) else {
             warn!("Error KeyCode -> UniversalInput");
-            return UniversalInput::Null;
+            return UniversalInput::Unknown(0);
         };
         let Ok(scan_code) = get_key(scan_code) else {
             warn!("Error KeyCode -> UniversalInput");
-            return UniversalInput::Null;
+            return UniversalInput::Unknown(scan_code);
         };
 
         scan_code
@@ -587,7 +587,7 @@ impl From<ScanCode> for UniversalInput {
     fn from(value: ScanCode) -> Self {
         let Ok(scan_code) = get_key(value.0) else {
             warn!("Error ScanCode -> UniversalInput");
-            return UniversalInput::Null;
+            return UniversalInput::Unknown(value.0);
         };
 
         scan_code

@@ -1,16 +1,6 @@
-use action_maps::{get_scan_code, prelude::*};
+use action_maps::prelude::*;
 use bevy::prelude::*;
 use bevy_input::{keyboard::KeyboardInput, ButtonState};
-
-/*
-    mut keyboard_events: EventReader<KeyboardInput>,
-    mut gamepad_events: EventReader<GamepadButtonChangedEvent>,
-    mut button_input_events: EventWriter<GamepadButtonInput>,
-    mut mouse_button_events: EventReader<MouseButtonInput>,
-    mut action_input: ResMut<ActionInput>,
-    control_scheme: Res<ControlScheme>,
-    settings: Res<GamepadSettings>,
-*/
 
 #[test]
 fn resource_responds_to_update() {
@@ -30,20 +20,20 @@ fn resource_responds_to_update() {
         (action_maps::input::universal_input_system).in_set(ActionMapSet::ReadEvents),
     );
     let press_key = KeyboardInput {
-        scan_code: get_scan_code("A").unwrap(),
-        key_code: Some(KeyCode::A),
+        scan_code: 0x01,
+        key_code: None,
         state: ButtonState::Pressed,
         window: bevy_ecs::entity::Entity::from_raw(0),
     };
     let release_key = KeyboardInput {
-        scan_code: get_scan_code("A").unwrap(),
-        key_code: Some(KeyCode::A),
+        scan_code: 0x01,
+        key_code: None,
         state: ButtonState::Released,
         window: bevy_ecs::entity::Entity::from_raw(0),
     };
 
     let mut cs = ControlScheme::default();
-    cs.insert("A", KeyCode::A);
+    cs.insert("A", ScanCode(0x01));
     app.insert_resource(cs);
     app.insert_resource(ActionInput::default());
     app.update();
