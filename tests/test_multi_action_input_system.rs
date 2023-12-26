@@ -52,7 +52,7 @@ fn multi_resource_responds_to_update() {
         mi,
         ms,
         (("Left", ScanCode(0x01)),),
-        (("Left", ScanCode(0x02)),)
+        (("LeftArrow", ScanCode(0x02)),)
     );
 
     app.insert_resource(mi);
@@ -65,7 +65,7 @@ fn multi_resource_responds_to_update() {
     app.update();
     let mi = app.world.resource_mut::<MultiInput>();
     assert!(mi.get(0).unwrap().pressed("Left"));
-    assert!(!mi.get(1).unwrap().pressed("Left"));
+    assert!(!mi.get(1).unwrap().pressed("LeftArrow"));
 
     app.world
         .resource_mut::<Events<KeyboardInput>>()
@@ -77,5 +77,5 @@ fn multi_resource_responds_to_update() {
 
     let mi = app.world.resource_mut::<MultiInput>();
     assert!(!mi.get(0).unwrap().pressed("Left"));
-    assert!(mi.get(1).unwrap().pressed("Left"));
+    assert!(mi.get(1).unwrap().pressed("LeftArrow"));
 }
