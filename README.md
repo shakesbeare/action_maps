@@ -163,3 +163,8 @@ fn handle_input(
 the ordering of systems properly, you may end up with a one frame delay between
 the input being registered and your systems being able to handle the input
 updated.
+
+## Dev Notes
+
+- Integration tests in `tests/` will always fail in CI as Linux is not supported. This
+    will be resolved in Bevy 0.13 when `get_scan_code` can be phased out.
