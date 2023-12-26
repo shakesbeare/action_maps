@@ -1,5 +1,6 @@
-use action_maps::multiplayer_prelude::*;
+use action_maps::{get_scan_code, multiplayer_prelude::*};
 use bevy::prelude::*;
+use bevy_input::{keyboard::KeyboardInput, ButtonState};
 
 #[test]
 fn multi_resource_responds_to_update() {
@@ -9,15 +10,40 @@ fn multi_resource_responds_to_update() {
         PreUpdate,
         ActionMapSet::HandleActions.after(ActionMapSet::ReadEvents),
     )
+    .add_event::<bevy::input::keyboard::KeyboardInput>()
+    .add_event::<bevy::input::gamepad::GamepadButtonChangedEvent>()
+    .add_event::<bevy::input::gamepad::GamepadButtonInput>()
+    .add_event::<bevy::input::mouse::MouseButtonInput>()
+    .insert_resource(bevy::input::gamepad::GamepadSettings::default())
     .add_systems(
         PreUpdate,
-        (action_maps::multi_action_input_system).in_set(ActionMapSet::ReadEvents),
+        (action_maps::input::multi_universal_input_system)
+            .in_set(ActionMapSet::ReadEvents),
     );
 
     app.insert_resource(Input::<KeyCode>::default());
     app.insert_resource(Input::<ScanCode>::default());
     app.insert_resource(Input::<GamepadButton>::default());
     app.insert_resource(Input::<MouseButton>::default());
+
+    let press_a = KeyboardInput {
+        scan_code: get_scan_code("A").unwrap(),
+        key_code: Some(KeyCode::A),
+        state: ButtonState::Pressed,
+        window: bevy_ecs::entity::Entity::from_raw(0),
+    };
+    let release_a = KeyboardInput {
+        scan_code: get_scan_code("A").unwrap(),
+        key_code: Some(KeyCode::A),
+        state: ButtonState::Released,
+        window: bevy_ecs::entity::Entity::from_raw(0),
+    };
+    let press_left = KeyboardInput {
+        scan_code: get_scan_code("Left").unwrap(),
+        key_code: Some(KeyCode::A),
+        state: ButtonState::Pressed,
+        window: bevy_ecs::entity::Entity::from_raw(0),
+    };
 
     let mut mi = MultiInput::default();
     let mut ms = MultiScheme::default();
@@ -28,22 +54,23 @@ fn multi_resource_responds_to_update() {
     app.insert_resource(ms);
     app.update();
 
-    app.world.resource_mut::<Input<KeyCode>>().press(KeyCode::A);
-    app.update(); // expected one frame delay
-
-    let mi = app.world.resource::<MultiInput>();
+    app.world
+        .resource_mut::<Events<KeyboardInput>>()
+        .send(press_a);
+    app.update();
+    let mi = app.world.resource_mut::<MultiInput>();
     assert!(mi.get(0).unwrap().pressed("Left"));
     assert!(!mi.get(1).unwrap().pressed("Left"));
 
     app.world
-        .resource_mut::<Input<KeyCode>>()
-        .release(KeyCode::A);
+        .resource_mut::<Events<KeyboardInput>>()
+        .send(release_a);
     app.world
-        .resource_mut::<Input<KeyCode>>()
-        .press(KeyCode::Left);
-    app.update(); // expected one frame delay
+        .resource_mut::<Events<KeyboardInput>>()
+        .send(press_left);
+    app.update();
 
-    let mi = app.world.resource::<MultiInput>();
+    let mi = app.world.resource_mut::<MultiInput>();
     assert!(!mi.get(0).unwrap().pressed("Left"));
     assert!(mi.get(1).unwrap().pressed("Left"));
 }

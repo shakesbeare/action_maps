@@ -10,8 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Fixed
+- Systems now respond directly to input events which will allow input to be processed
+    immediately rather than with a one frame delay. This requires registering input
+    handling systems to occur after the UniversalInputPlugin can read the events
+    and update the resources.
 
 ### Changed
+- Dev: UniversalInput enum has been flattened
 
 ### Removed
 

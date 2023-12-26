@@ -157,7 +157,14 @@ fn handle_input(
 
 - Support for Axis type inputs
 
-## Known Issues
+## Potential Issues
 
-- ActionInput resource doesn't get update for a single frame after Input resources are
-    updated
+- Action Maps uses the event system to read input. As such, if you don't ensure
+the ordering of systems properly, you may end up with a one frame delay between
+the input being registered and your systems being able to handle the input
+updated.
+
+## Dev Notes
+
+- Integration tests in `tests/` will always fail in CI as Linux is not supported. This
+    will be resolved in Bevy 0.13 when `get_scan_code` can be phased out.

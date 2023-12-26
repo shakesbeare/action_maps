@@ -50,10 +50,10 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     control_scheme.set(make_controls!(
-        (Actions::Up, ScanCode(get_scan_code("W"))),
-        (Actions::Left, ScanCode(get_scan_code("A"))),
-        (Actions::Down, ScanCode(get_scan_code("S"))),
-        (Actions::Right, ScanCode(get_scan_code("D"))),
+        (Actions::Up, ScanCode(get_scan_code("W").unwrap())),
+        (Actions::Left, ScanCode(get_scan_code("A").unwrap())),
+        (Actions::Down, ScanCode(get_scan_code("S").unwrap())),
+        (Actions::Right, ScanCode(get_scan_code("D").unwrap())),
         (Actions::ChangeColor, MouseButton::Left)
     ));
 
