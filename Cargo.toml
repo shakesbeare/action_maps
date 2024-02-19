@@ -13,7 +13,7 @@ exclude = ["assets/", "examples/", "tests/"]
 
 [dependencies]
 bevy_app = "0.12.0"
-bevy_ecs = "0.12.0"
+bevy_ecs = "0.13.0"
 bevy_input = "0.12.1"
 bevy_log = "0.12.1"
 bevy_reflect = "0.12.1"
