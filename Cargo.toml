@@ -16,7 +16,7 @@ bevy_app = "0.12.0"
 bevy_ecs = "0.12.0"
 bevy_input = "0.12.1"
 bevy_log = "0.12.1"
-bevy_reflect = "0.12.1"
+bevy_reflect = "0.13.1"
 thiserror = "1.0.51"
 
 [dev-dependencies]
