@@ -20,4 +20,4 @@ bevy_reflect = "0.12.1"
 thiserror = "1.0.51"
 
 [dev-dependencies]
-bevy = "0.12.0"
+bevy = "0.13.1"
